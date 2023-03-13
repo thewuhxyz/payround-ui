@@ -78,4 +78,3 @@ export const formatEpoch = (epochMs: number | string) =>{
 
 const formatTime = (number: number) => number < 10 ? `0${number}` : `${number}`;
 
-

@@ -18,6 +18,7 @@ import {
 } from '@solana/spl-token';
 // import { } from '@clockwork-xyz/sdk';
 import type { ClockworkTrigger, TaskOptions } from './types';
+import { getTransactionsFilterByMint } from '$lib/helpers';
 
 export class PayroundClient {
 	static PAYROUND_ID = new PublicKey('BQpMmaGZ9wgYvUQGcBarTr3puuDid1W3tUj7Fz3pWUkV');
@@ -420,5 +421,48 @@ export class PayroundClient {
 
 	async fetchTaskListAccount(key: PublicKey) {
 		return await this.program.account.tasklist.fetch(key);
+	}
+
+	async formatTxData ( limit?: number) {
+		  return await this.formatTxDataFor(this.usdcAddress, limit)
+	}
+	
+	async formatTxDataFor (address: PublicKey, limit?: number) {
+		  const txData = await getTransactionsFilterByMint(address, this.connection, {limit});
+			console.log('txData:', txData);
+
+			return txData.map((tx) => {
+				const preBal =
+					tx.parsedTx!.meta!.preTokenBalances!.filter(
+						(i) => i.owner == this.pubkey.toBase58()
+					)[0].uiTokenAmount.uiAmount || 0;
+
+				const postBal =
+					tx.parsedTx!.meta!.postTokenBalances!.filter(
+						(i) => i.owner == this.pubkey.toBase58()
+					)[0].uiTokenAmount.uiAmount || 0;
+
+				const out = preBal > postBal;
+
+				const token = tx.parsedTx!.meta!.postTokenBalances!.filter(
+					(i) => i.owner !== this.pubkey.toBase58()
+				);
+
+				const address = token.length == 0 ? '-' : token[0].owner;
+
+				const amount = Math.abs(preBal - postBal);
+
+				return {
+					sig: tx.sigInfo.signature,
+					timeStamp: tx.sigInfo.blockTime! * 1000,
+					mint: tx.parsedTx!.meta!.preTokenBalances![0].mint,
+					out,
+					preBal,
+					postBal,
+					amount,
+					address
+				};
+			});
+
 	}
 }

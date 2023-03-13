@@ -33,10 +33,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	addcard: async ({ request, locals }) => {
-		const sbHelper = locals.sbHelper;
-		const session = await sbHelper.getSession();
-		// const payroundAdmin = locals.payroundAdmin;
+	withdraw: async ({ request, locals }) => {
+		const supabase = locals.supabase;
+		const session = await locals.getSession();
+		const payroundAdmin = locals.payroundAdmin;
 		const stripe = locals.stripe;
 
 		if (!session) {
@@ -44,50 +44,35 @@ export const actions: Actions = {
 		}
 
 		const formData = Object.fromEntries(await request.formData())
-		console.log("form data card:", formData);
+		console.log("==================== form data card: ==================", formData);
 		
+		const cardId = formData.card as string
+		const amount = formData.amount as string
 
 		const user = session.user;
-		const stripeResult = await sbHelper.getUserAccount()
-			// .from('account')
-			// .select('email, stripe_id')
-			// .eq('id', user.id)
-			// .single();
-		// const stripeData = stripeResult;
+		const stripeResult = await supabase
+			.from('account')
+			.select('email, stripe_id')
+			.eq('id', user.id)
+			.single();
+		const stripeData = stripeResult.data;
 
-		// if (!stripeData) {
-		// 	console.log('no stripeId returned');
-		// }
-		// console.log('data:', stripeData);
+		if (!stripeData) {
+			console.log('no stripeId returned');
+		}
+		console.log('data:', stripeData);
 
-		const expiry = formData.expiry as string
-		const expMonth = expiry.slice(0,2)
-		const expYear = "20"+expiry.slice(2,4)
+		const payout = await stripe.payouts.create(
+			{ amount: Number(amount), currency: 'usd', method: 'instant', source_type: 'card', destination: cardId },
+			{ stripeAccount: stripeData?.stripe_id! }
+		);
 
-		console.log("exp month:", expMonth);
-		console.log("exp year:", expYear);
+		console.log("Payout:", payout);
 		
 
-		const cardToken = await stripe.tokens.create({
-			card: {
-				number: formData.number as string,
-				exp_month: expMonth,
-				exp_year: expYear,
-				cvc: formData.cvv as string,
-				currency: "usd"
-			}
-		})
+		// console.log("account link:", accountLink);
+		// console.log("account link:", accountLink.url);
 
-		console.log("card token:", cardToken);
-		
-
-		const stripeId = stripeResult.stripe_id!;
-
-		const account = await stripe.accounts.createExternalAccount(stripeId, {
-			external_account: cardToken.id
-		});
-
-		console.log("account:", account);
-		
+		// throw redirect(303, accountLink.url)
 	}
 };
