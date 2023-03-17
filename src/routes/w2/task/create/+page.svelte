@@ -50,7 +50,7 @@
 	</div>
   <div class={` text-3xl py-2 ${sendto == 'payround' ? '' : 'hidden'}`} >
    <label for="">Email</label>
-   <input class='input' placeholder="someone@example.com" name="recipient" type="text">
+   <input class='input' placeholder="someone@example.com" name="email" type="text">
  </div>
 	<div class="grid grid-cols-1 py-2">
 		<label class="flex  items-end  text-3xl mx-2" for="amount">Amount</label>
@@ -111,3 +111,5 @@
 		>
 	</div>
 </form>
+
+

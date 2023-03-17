@@ -20,6 +20,8 @@
 
 	let recipient = '';
 	$: recipient;
+	
+	
 
 	let name = '';
 	$: name;
@@ -31,6 +33,7 @@
 	$: group;
 
 	let email = '';
+	$: email
 	let dayofweek: string;
 	let dayofmonth: string;
 	let timeOfDay: string;
@@ -57,11 +60,11 @@
 		if (sendto == 'payround') {
 			console.log('here:');
 
-			console.log("address:",recipient)
+			console.log("address:",email)
 
 			const resp = await fetch('/w3/api/task/address', {
 				method: 'POST',
-				body: JSON.stringify({ address: recipient })
+				body: JSON.stringify({ address: email })
 			});
 			const respData = await resp.json();
 			console.log('respdata:', respData);
@@ -123,7 +126,7 @@
 		</div>
     <div class={` text-3xl py-2 ${sendto == 'payround' ? '' : 'hidden'}`} >
       <label for="">Email</label>
-      <input class='input' placeholder="someone@example.com" bind:value={recipient} name="recipient" type="text">
+      <input class='input' placeholder="someone@example.com" bind:value={email} name="email" type="text">
     </div>
 	</div>
 

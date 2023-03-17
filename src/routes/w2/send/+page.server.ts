@@ -40,6 +40,7 @@ export const actions: Actions = {
 		const formData = Object.fromEntries(await request.formData());
 		console.log('form data:', formData);
 		const recipient = formData.recipient as string;
+		const email = formData.email as string;
 		const uiAmount = formData.amount as string;
 		const sendto = formData.sendto as string;
 
@@ -65,7 +66,7 @@ export const actions: Actions = {
 				// 	throw error(401, 'address not found');
 				// }
 
-				const addressData = await sbHelper.getAccountByEmail(recipient)
+				const addressData = await sbHelper.getAccountByEmail(email)
 				const address = addressData.account_key
 
 				if (address == null) {
@@ -97,6 +98,8 @@ export const actions: Actions = {
 			} catch (e) {
 				console.log(e);
 			}
+
+			throw redirect (303, "/w2/send")
 		}
 	}
 };

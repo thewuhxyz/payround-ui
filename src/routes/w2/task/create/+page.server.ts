@@ -48,6 +48,7 @@ export const actions: Actions = {
 		// console.log('task data:', formData);
 		const name = formData.name as string;
 		const recipient = formData.recipient as string;
+		const email = formData.email as string;
 		const uiAmount = formData.amount as string;
 		const groupId = formData.group as string;
 
@@ -57,7 +58,7 @@ export const actions: Actions = {
     if (formData.sendto == "payround") {
 			try {
 
-				const addressData = await sbHelper.getAccountByEmail(recipient)
+				const addressData = await sbHelper.getAccountByEmail(email)
 				address = addressData.account_key!;
         console.log(' address:', address);
 			} catch (e) {

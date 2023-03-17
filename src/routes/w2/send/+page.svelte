@@ -10,10 +10,10 @@
 	let show = 'payround';
 	$: show;
 
-	let recipient = '';
+	let recipient: string;
 	$: recipient;
 
-	
+	$: console.log("recipient:", recipient)
 
 </script>
 
@@ -40,9 +40,8 @@
 			/>
 			<select
 				class="select"
-				name="address"
+				name="recipient"
 				bind:value={recipient}
-				
 			>
 				<option id="address-default" value="" selected>--- address book ---</option>
 				{#if addressBook}
@@ -54,7 +53,7 @@
 		</div>
     <div class={` text-3xl py-2 ${show == 'payround' ? '' : 'hidden'}`} >
       <label for="">Email</label>
-      <input class='input' placeholder="someone@example.com" name="recipient" type="text">
+      <input class='input' placeholder="someone@example.com" name="email" type="text">
     </div>
 	</div>
 
