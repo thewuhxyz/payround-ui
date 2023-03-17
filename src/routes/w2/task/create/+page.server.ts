@@ -117,7 +117,7 @@ export const actions: Actions = {
 					amount: Number(uiAmount),
 					cron: true,
           schedule,
-					recipient,
+					recipient: address,
 					task_group: groupId ? groupId : null,
 					thread_key: threadKey,
 					rent,

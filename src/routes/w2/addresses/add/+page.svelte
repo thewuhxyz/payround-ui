@@ -1,10 +1,10 @@
-<a href={"/addresses"} class="text-3xl bg-red-500">Address Book</a>
+<a href={"/addresses"} class="text-3xl ">Address Book</a>
 <form
 	class="border-2 rounded-3xl border-solid text-tertiary-400 border-primary-500 max-w-xl p-4 mx-auto my-24"
 	action="?/add"
 	method="post"
 >
-	<div class="justify-center text-3xl text-center ">Add New Recipientp</div>
+	<div class="justify-center text-3xl text-center ">Add New Recipient</div>
 	<div class="grid-cols-1 grid py-2">
 		<label class="flex items-end  text-3xl mx-2" for="name">Name</label>
 		<input class="w-sm input" name="name" type="text" />

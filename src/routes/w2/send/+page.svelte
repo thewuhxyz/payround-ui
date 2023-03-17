@@ -40,7 +40,7 @@
 			/>
 			<select
 				class="select"
-				name="recipient"
+				name="address"
 				bind:value={recipient}
 			>
 				<option id="address-default" value="" selected>--- address book ---</option>

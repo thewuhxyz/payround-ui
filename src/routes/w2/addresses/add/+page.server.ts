@@ -23,13 +23,14 @@ export const actions: Actions = {
 		const address = formData.address as string;
 
 		const user = session.user;
+		const userId = await sbHelper.getUserId()
 		const submited = await sbHelper.sb
 			.from('address_book')
 			.insert({
-				account_id: user.id,
+				// account_id: user.id,
 				name,
         address,
-				user_id: await sbHelper.getUserId()
+				user_id: userId,
 			})
 			.select();
 		console.log('submitted:', submited);

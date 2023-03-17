@@ -115,7 +115,7 @@
 					name,
 					amount,
 					schedule,
-					recipient,
+					recipient: address,
 					groupId,
 					threadKey,
 					rent,
