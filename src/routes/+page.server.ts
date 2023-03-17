@@ -14,7 +14,7 @@ export const actions: Actions = {
 			email: body.email as string,
 			// password: body.password as string,
 			options: {
-				emailRedirectTo: 'http://localhost:5173/confirmation',
+				emailRedirectTo: 'https://payround-ui.vercel.app/confirmation',
 			} 
 		});
 
