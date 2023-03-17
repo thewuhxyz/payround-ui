@@ -49,9 +49,12 @@
 		"@supabase/supabase-js": "^2.10.0",
 		"@svelte-on-solana/wallet-adapter-core": "^1.0.11-alpha.0",
 		"@svelte-on-solana/wallet-adapter-ui": "^1.0.21-alpha.0",
+		"bs58": "^5.0.0",
 		"cron-parser": "^4.8.1",
 		"date-picker-svelte": "^2.3.0",
+		"jsonwebtoken": "^9.0.0",
 		"stripe": "^11.13.0",
-		"svelte-interactive-creditcard": "^1.0.3"
+		"svelte-interactive-creditcard": "^1.0.3",
+		"tweetnacl": "^1.0.3"
 	}
 }

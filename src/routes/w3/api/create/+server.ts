@@ -7,13 +7,14 @@ export const POST: RequestHandler  = async ({ request, locals }) => {
 
 	const req = await request.json()
 	const userId = req.address as string
+	const rent = req.rent as string
 	console.log('userid:', userId)
 	const name = req.name as string
 		const supabase = locals.sbAdmin;
 		const payroundAdmin = locals.payroundAdmin;
 
-		const isUserCreated = await supabase
-			.from('user')
+		const isUserCreated = await supabase.sb
+			.from('account')
 			.select('account_created')
 			.eq('user_id', userId)
 			.single();
@@ -21,14 +22,15 @@ export const POST: RequestHandler  = async ({ request, locals }) => {
 			if (isUserCreated.data?.account_created == null) {
 				
 
-			const some = await supabase
-				.from('user')
+			const some = await supabase.sb
+				.from('account')
 				.insert({
 					degen: true,
 					user_id: userId,
 					account_key: payroundAdmin(userId).pubkey.toBase58(),
 					account_created: true,
-					name,
+					nickname: name,
+					rent: Number(rent),
 				})
 				.select();
 			console.log('some:', some);

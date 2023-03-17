@@ -4,34 +4,32 @@ import type { PageServerLoad } from './$types';
 import parser from 'cron-parser';
 import { getTransactionsFilterByMint } from '$lib/helpers';
 import type { TaskStatus } from '$lib/payround/types';
+import { PayroundClient } from '$lib/payround/protocol';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	const session = await locals.getSession();
-	const supabase = locals.supabase;
+export const load: PageServerLoad = async ({ locals, params, parent }) => {
+  const sbHelper = locals.sbHelper
+	const session = await sbHelper.getSession();
+	// const supabase = locals.supabase;
 	const payroundAdmin = locals.payroundAdmin;
 	if (!session) {
 		throw redirect(303, '/');
 	}
-	const user = session.user;
-	const userId = (await supabase.from('account').select('user_id').eq('id', user.id).single())
-		.data?.user_id;
-	const taskResult = await supabase.from('task').select('*').eq('task_key', params.id).single();
-	const task = taskResult.data;
+	const userId = await sbHelper.getUserId()
+	const taskResult = await sbHelper.getTask(params.id);
+	const task = taskResult
 
 	if (!userId) {
-		throw error(404, 'page not found');
+		throw error(404, 'error fetching user data');
 	}
   const payroundClient = payroundAdmin(userId)
 	const taskkey = new PublicKey(params.id);
 	const taskAccount = await payroundClient.fetchTaskAccount(taskkey)
   const thread = taskAccount.thread
-  const threadBalance = await payroundClient.connection.getBalance(thread)
+  const threadBalance = (await payroundClient.connection.getBalance(thread) - task.rent!)/PayroundClient.MEGALAMPORT
   
   const status = taskAccount.status
   let decodedStatus; 
 
-  console.log("task account:", taskAccount);
-  console.log("task account:", status);
 
   
   if (status.ended) {
@@ -46,64 +44,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   decodedStatus
 
-  const txData = await getTransactionsFilterByMint(
-		thread,
-		payroundClient.connection
-	);
-	console.log('txData:', txData);
-
-  const info = txData.map((data) => {
-		return data.parsedTx?.meta;
-	});
-  
-  const info2 = txData.map((data) => {
-		return data.parsedTx?.meta?.preTokenBalances;
-	});
-  console.log("pubkey:", payroundClient.pubkey.toBase58());
-  
-  const info3 = txData.map((data) => {
-		return data.parsedTx?.meta?.preTokenBalances?.filter((i) => i.owner = payroundClient.pubkey.toBase58());
-	});
-
-	console.log('info:', info);
-	console.log('info2:', info2);
-
-	const tx = txData
-		.map((tx) => {
-			const preBal =
-				tx.parsedTx!.meta!.preTokenBalances!.filter(
-					(i) => i.owner == payroundClient.pubkey.toBase58()
-				)[0].uiTokenAmount.uiAmount || 0;
-				
-        
-
-			const postBal =
-				tx.parsedTx!.meta!.postTokenBalances!.filter(
-					(i) => i.owner == payroundClient.pubkey.toBase58()
-				)[0].uiTokenAmount.uiAmount || 0;
-
-			const out = preBal > postBal;
-
-			const token =
-				tx.parsedTx!.meta!.postTokenBalances!.filter(
-					(i) => i.owner !== payroundClient.pubkey.toBase58()
-				);
-
-      const address = token.length == 0 ? "-" : token[0].owner
-
-			const amount = Math.abs(preBal - postBal);
-
-			return {
-				sig: tx.sigInfo.signature,
-				timeStamp: tx.sigInfo.blockTime! * 1000,
-				mint: tx.parsedTx!.meta!.preTokenBalances![0].mint,
-				out,
-				preBal,
-				postBal,
-				amount,
-				address
-			};
-		})
+  const tx = await payroundClient.formatTxDataFor(thread, 50)
 
 	if (!task) {
 		console.log('no group returned');
@@ -118,113 +59,152 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     nextRun = Number(task!.schedule)*1000
   }
 
+  await parent()
+
 	return {
 		task: { nextRun, decodedStatus, threadBalance, tx, ...task}
 	};
 };
 
 
-// export const POST:RequestHandler = (() => {
-// 	// do something
-// });
 
 export const actions: Actions = {
 	withdraw: async ({ request, locals, params }) => {
-		const supabase = locals.supabase;
-		const session = await locals.getSession();
-		const payroundAdmin = locals.payroundAdmin;
-
+		const sbHelper = locals.sbHelper;
+		const session = await sbHelper.getSession();
+    
 		if (!session) {
-			throw redirect(303, '/');
+      throw redirect(303, '/');
 		}
+    
+    const userId = await sbHelper.getUserId()
+    const payroundAdmin = locals.payroundAdmin(userId);
 
 		const formData = Object.fromEntries(await request.formData());
 		console.log('forndata:', formData);
 
+    const taskPubkey = new PublicKey (params.id!)
 		const amount = formData.amount as string;
-		// const description = formData.desc as string;
 
-    console.log("withdraw");
+    try {
+
+      const tx = await payroundAdmin.withdrawTaskCreditTx(taskPubkey, Number(amount))
+      return {success: true} 
+    } catch (e) {
+      console.log(e)
+      return {success: false}
+    }
     
 	},
+	
 	credit: async ({ request, locals, params }) => {
-		const supabase = locals.supabase;
-		const session = await locals.getSession();
-		const payroundAdmin = locals.payroundAdmin;
-
+		const sbHelper = locals.sbHelper;
+		const session = await sbHelper.getSession();
+    
 		if (!session) {
-			throw redirect(303, '/');
+      throw redirect(303, '/');
 		}
+    
+    const userId = await sbHelper.getUserId()
+    const payroundAdmin = locals.payroundAdmin(userId);
 
 		const formData = Object.fromEntries(await request.formData());
 		console.log('forndata:', formData);
 
+    const taskPubkey = new PublicKey (params.id!)
 		const amount = formData.amount as string;
-		// const description = formData.desc as string;
-    console.log("credit");
+
+    try {
+
+      const tx = await payroundAdmin.creditTaskTx(taskPubkey, Number(amount))
+      return {success: true} 
+    } catch (e) {
+      console.log(e)
+      return {success: false}
+    }
     
 	},
-
-	resume: async ({ request, locals, params }) => {
-		const supabase = locals.supabase;
-		const session = await locals.getSession();
-		const payroundAdmin = locals.payroundAdmin;
-
+	
+  resume: async ({ request, locals, params }) => {
+		const sbHelper = locals.sbHelper;
+		const session = await sbHelper.getSession();
+    
 		if (!session) {
-			throw redirect(303, '/');
+      throw redirect(303, '/');
 		}
+    
+    const userId = await sbHelper.getUserId()
+    const payroundAdmin = locals.payroundAdmin(userId);
 
 		const formData = Object.fromEntries(await request.formData());
 		console.log('forndata:', formData);
 
+    const taskPubkey = new PublicKey (params.id!)
 		const amount = formData.amount as string;
-		// const description = formData.desc as string;
 
-		const user = session.user;
-		const userId = (await supabase.from('account').select('account_key').eq('id', user.id).single())
-			.data?.account_key;
-		if (!userId) {
-			throw error(404, 'page not found');
-		}
+    try {
 
-		const payroundClient = payroundAdmin(userId);
+      const tx = await payroundAdmin.resumeTaskTx(taskPubkey)
 
-		try {
-			const tx = await payroundClient.resumeTaskTx(new PublicKey(params.id!));
-			console.log('tx:', tx);
-		} catch (e) {
-			console.log(e);
-		}
+      return {success: true} 
+    } catch (e) {
+      console.log(e)
+      return {success: false}
+    }
+    
 	},
-	pause: async ({ request, locals, params }) => {
-		const supabase = locals.supabase;
-		const session = await locals.getSession();
-		const payroundAdmin = locals.payroundAdmin;
-
+  pause: async ({ request, locals, params }) => {
+		const sbHelper = locals.sbHelper;
+		const session = await sbHelper.getSession();
+    
 		if (!session) {
-			throw redirect(303, '/');
+      throw redirect(303, '/');
 		}
+    
+    const userId = await sbHelper.getUserId()
+    const payroundAdmin = locals.payroundAdmin(userId);
 
 		const formData = Object.fromEntries(await request.formData());
 		console.log('forndata:', formData);
 
+    const taskPubkey = new PublicKey (params.id!)
 		const amount = formData.amount as string;
-		// const description = formData.desc as string;
 
-		const user = session.user;
-		const userId = (await supabase.from('account').select('account_key').eq('id', user.id).single())
-			.data?.account_key;
-		if (!userId) {
-			throw error(404, 'page not found');
+    try {
+
+      const tx = await payroundAdmin.pauseTaskTx(taskPubkey)
+      return {success: true} 
+    } catch (e) {
+      console.log(e)
+      return {success: false}
+    }
+    
+	},
+  start: async ({ request, locals, params }) => {
+		const sbHelper = locals.sbHelper;
+		const session = await sbHelper.getSession();
+    
+		if (!session) {
+      throw redirect(303, '/');
 		}
+    
+    const userId = await sbHelper.getUserId()
+    const payroundAdmin = locals.payroundAdmin(userId);
 
-		const payroundClient = payroundAdmin(userId);
+		const formData = Object.fromEntries(await request.formData());
+		console.log('forndata:', formData);
 
-		try {
-			const tx = await payroundClient.pauseTaskTx(new PublicKey(params.id!));
-			console.log('tx:', tx);
-		} catch (e) {
-			console.log(e);
-		}
-	}
+    const taskPubkey = new PublicKey (params.id!)
+		const amount = formData.amount as string;
+
+    try {
+      await payroundAdmin.startTaskTx(taskPubkey, Number(amount))
+      return {success: true} 
+    } catch (e) {
+      console.log(e)
+      return {success: false}
+    }
+    
+	},
+	
 };

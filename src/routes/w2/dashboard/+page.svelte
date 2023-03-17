@@ -39,19 +39,19 @@
 			<div class="p-2 text-xl">Upcoming Tasks</div>
 			<a href="/w2/task">see all</a>
 		</div>
-		{#if tasks}
-			<div class="table table-container p-5">
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th>S/N</th>
-							<th>Name</th>
-							<th>Recipient</th>
-							<th>Amount</th>
-							<th>Cron</th>
-							<th>Next Run</th>
-						</tr>
-					</thead>
+		<div class="table table-container p-5">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>S/N</th>
+						<th>Name</th>
+						<th>Recipient</th>
+						<th>Amount</th>
+						<th>Cron</th>
+						<th>Next Run</th>
+					</tr>
+				</thead>
+				{#if tasks.length }
 					<tbody>
 						{#each tasks as row, i}
 							<tr id={row.task_key} on:click={() => goto(`/w2/task/${row.task_key}`)}>
@@ -64,11 +64,11 @@
 							</tr>
 						{/each}
 					</tbody>
+					{:else}
+						<div class="p-4" >No Upcoming Tasks</div>
+					{/if}
 				</table>
 			</div>
-		{:else}
-			<div>No Transactions Yet</div>
-		{/if}
 	</div>
 	<div class="p-4">
 		<div class="flex justify-between items-center px-2">
@@ -76,18 +76,18 @@
 			<a href="/w2/transactions">see all</a>
 		</div>
 
-		{#if transactions}
-			<div class="table table-container p-5">
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<!-- <th>S/N</th> -->
-							<th>Address</th>
-							<th>Amount</th>
-							<th>In/Out</th>
-							<th>Timestamp</th>
-						</tr>
-					</thead>
+		<div class="table table-container p-5">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<!-- <th>S/N</th> -->
+						<th>Address</th>
+						<th>Amount</th>
+						<th>In/Out</th>
+						<th>Timestamp</th>
+					</tr>
+				</thead>
+				{#if transactions.length}
 					<tbody>
 						{#each transactions as row, i}
 							<tr
@@ -103,10 +103,10 @@
 							</tr>
 						{/each}
 					</tbody>
+					{:else}
+						<div class="p-4">No Transactions Yet</div>
+					{/if}
 				</table>
 			</div>
-		{:else}
-			<div>No Transactions Yet</div>
-		{/if}
 	</div>
 </div>

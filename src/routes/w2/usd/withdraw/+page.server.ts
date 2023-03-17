@@ -1,7 +1,7 @@
 import { redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
 	const session = await locals.getSession();
 	const supabase = locals.supabase;
   const stripe = locals.stripe
@@ -25,6 +25,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	// const accountCard = await stripe.accounts.retrieveExternalAccount()
 	account.external_accounts?.data
+
+	await parent()
 
 	return {
 		stripeCardPayment,

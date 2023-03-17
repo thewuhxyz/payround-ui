@@ -2,18 +2,18 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import parser from "cron-parser"
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals, params, parent }) => {
 	const session = await locals.getSession();
 	const supabase = locals.supabase;
+	const sbHelper = locals.sbHelper
   // const payroundAdmin = locals.payroundAdmin()
 	if (!session) {
 		throw redirect(303, '/');
 	}
-	const user = session.user;
-	const groupResult = await supabase.from('task_group').select('*').eq("id", params.id).single()
-	const tasksResult = await supabase.from('task').select('*').eq("task_group", params.id)
-  const group = groupResult.data;
-	const tasksData = tasksResult.data;
+	const groupResult = await sbHelper.getTaskGroup(params.id)
+	const tasksResult = await sbHelper.getAllTasksForGroup(params.id)
+  const group = groupResult;
+	const tasksData = tasksResult;
 
   const tasks = tasksData?.map((i) => {
      let nextRunMs: number;
@@ -28,8 +28,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!tasks) {
 		console.log('no group returned');
 	}
-	console.log('data:', tasks);
-
+	// console.log('data:', tasks);
+	await parent()
 	return {
     group,
 		tasks

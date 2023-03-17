@@ -9,13 +9,13 @@
 	export let address: string;
 	export let balance: string;
 	export let credit: number;
-	export let hide: boolean
+	export let show: boolean
 	export let route: string
 </script>
 
 <AppShell slotSidebarLeft="bg-primary-500" slotHeader="bg-primary-700">
 	<svelte:fragment slot="sidebarLeft">
-		<SideBar {email} {name} {hide} {route}  />
+		<SideBar {email} {name} {show} {route}  />
 	</svelte:fragment>
 	<svelte:fragment slot="header">
 		<Header />

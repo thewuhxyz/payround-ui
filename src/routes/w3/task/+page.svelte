@@ -34,7 +34,7 @@
 		>
 	</div>
 
-	{#if tasks}
+	{#if tasks.length}
 		<div class="table table-container p-5">
 			<table class="table table-hover">
 				<thead>

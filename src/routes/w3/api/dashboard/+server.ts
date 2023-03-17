@@ -10,8 +10,11 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
   const userId = req.address
 	
-	const tasksResult = await supabase.from('task').select('*').eq('user_id', userId);
+	const tasksResult = await supabase.sb.from('task').select('*').eq('user_id', userId);
 	const data = tasksResult.data;
+
+	console.log("data:", data);
+	
 
 	let upcomingTasks: any[] 
 	if (!data) {

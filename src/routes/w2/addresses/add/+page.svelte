@@ -1,3 +1,4 @@
+<a href={"/addresses"} class="text-3xl bg-red-500">Address Book</a>
 <form
 	class="border-2 rounded-3xl border-solid text-tertiary-400 border-primary-500 max-w-xl p-4 mx-auto my-24"
 	action="?/add"

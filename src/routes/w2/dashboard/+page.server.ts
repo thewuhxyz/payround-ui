@@ -1,23 +1,30 @@
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import parser from 'cron-parser';
 import { getTransactionsFilterByMint } from '$lib/helpers';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals , parent}) => {
+	const sbHelper = locals.sbHelper
 	const session = await locals.getSession();
 	const supabase = locals.supabase;
   const payroundAdmin = locals.payroundAdmin
-	if (!session) {
-		throw redirect(303, '/');
+	// if (!session) {
+	// 	throw redirect(303, '/');
+	// }
+	const user = await sbHelper.getUser();
+	// const tasksResult = await supabase.from('task').select('*').eq('account_id', user.id);
+	console.log("user:", user.id);
+	
+	const tasksResult = await sbHelper.getAllTasksForUser();
+	console.log("task results");
+	
+	if (tasksResult == null) {
+		throw redirect(303, "/")
 	}
-	const user = session.user;
-	const tasksResult = await supabase.from('task').select('*').eq('account_id', user.id);
-	const data = tasksResult.data;
-	if (!data) {
-		throw console.error('no group returned');
-	}
-	console.log('data:', data);
 
+	
+	const data = tasksResult
+	
 	const upcomingTasks = data
 		.map((i) => {
       let nextRunMs: number;
@@ -31,64 +38,66 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.filter((i) => i.nextRunMs > Date.now())
 		.sort((a, b) => a.nextRunMs - b.nextRunMs).slice(0,10);
 
-  const userId = await supabase.from('account').select('user_id').eq('id', user.id).single();
-	// const tasks = tasksResult.data;
-	if (!userId) {
-		console.log('No User Id');
-	}
+  // const userAccount = await sbHelper.getUserAccount();
+
+	const userId = await sbHelper.getUserId()
 
 	console.log('user id:', userId);
 
-	const payroundClient = payroundAdmin(userId.data?.user_id!);
+	const payroundClient = payroundAdmin(userId!);
 	console.log('payroundClient', payroundClient.usdcAddress);
 
-	const txData = await getTransactionsFilterByMint(
-		payroundClient.usdcAddress,
-		payroundClient.connection,
-    {limit: 10}
-	);
+
+	// const txData = await getTransactionsFilterByMint(
+	// 	payroundClient.usdcAddress,
+	// 	payroundClient.connection,
+  //   {limit: 10}
+	// );
 	// console.log('txData:', txData);
 
-	const info = txData.map((data) => {
-		return data.parsedTx?.meta;
-	});
+	// const info = txData.map((data) => {
+	// 	return data.parsedTx?.meta;
+	// });
 
 	// console.log('info:', info);
 
-	const txFormatedData = txData.map((tx) => {
-		const preBal =
-			tx.parsedTx!.meta!.preTokenBalances!.filter(
-				(i) => i.owner == payroundClient.pubkey.toBase58()
-			)[0].uiTokenAmount.uiAmount || 0;
+	// const txFormatedData = txData.map((tx) => {
+	// 	const preBal =
+	// 		tx.parsedTx!.meta!.preTokenBalances!.filter(
+	// 			(i) => i.owner == payroundClient.pubkey.toBase58()
+	// 		)[0].uiTokenAmount.uiAmount || 0;
 
-    const postBal =
-			tx.parsedTx!.meta!.postTokenBalances!.filter(
-				(i) => i.owner == payroundClient.pubkey.toBase58()
-			)[0].uiTokenAmount.uiAmount || 0;
+  //   const postBal =
+	// 		tx.parsedTx!.meta!.postTokenBalances!.filter(
+	// 			(i) => i.owner == payroundClient.pubkey.toBase58()
+	// 		)[0].uiTokenAmount.uiAmount || 0;
 
-    const out = preBal > postBal
+  //   const out = preBal > postBal
 
-    const address =
-			tx.parsedTx!.meta!.preTokenBalances!.filter(
-				(i) => i.owner !== payroundClient.pubkey.toBase58()
-			)[0].owner || null;
+  //   const address =
+	// 		tx.parsedTx!.meta!.preTokenBalances!.filter(
+	// 			(i) => i.owner !== payroundClient.pubkey.toBase58()
+	// 		)[0].owner || null;
 
-    const amount = Math.abs(preBal - postBal)
+  //   const amount = Math.abs(preBal - postBal)
 		
-    return {
-			sig: tx.sigInfo.signature,
-			timeStamp: tx.sigInfo.blockTime! * 1000,
-			mint: tx.parsedTx!.meta!.preTokenBalances![0].mint,
-			out,
-      preBal,
-      postBal,
-      amount,
-      address
-		};
-	}).sort((a,b) => b.timeStamp - a.timeStamp);
+  //   return {
+	// 		sig: tx.sigInfo.signature,
+	// 		timeStamp: tx.sigInfo.blockTime! * 1000,
+	// 		mint: tx.parsedTx!.meta!.preTokenBalances![0].mint,
+	// 		out,
+  //     preBal,
+  //     postBal,
+  //     amount,
+  //     address
+	// 	};
+	// }).sort((a,b) => b.timeStamp - a.timeStamp);
 
-	console.log('data:', data);
+	// console.log('data:', data);
 
+	const txFormatedData = await payroundClient.formatTxData()
+
+	await parent();
 
 	return {
 		upcomingTasks,

@@ -2,16 +2,16 @@
 	import { goto } from '$app/navigation';
 	import { modalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import type { PageData } from './$types';
-  import parser from "cron-parser"
+	import parser from 'cron-parser';
 	import { formatEpoch, truncate } from '$lib/helpers';
 
 	export let data: PageData;
 
 	const task = data.task!;
 
-  // const nextRun = parser.parseExpression(task.schedule).next().toString()
+	// const nextRun = parser.parseExpression(task.schedule).next().toString()
 
-  // $: nextRun
+	// $: nextRun
 
 	let paused = false;
 
@@ -24,8 +24,8 @@
 			method: 'POST'
 		});
 	};
-	
-  function deleteTaskConfirm(): void {
+
+	function deleteTaskConfirm(): void {
 		const confirm: ModalSettings = {
 			type: 'confirm',
 			title: 'Delete Task?',
@@ -39,8 +39,11 @@
 </script>
 
 <div class="mt-12 p-4">
-	<div class="text-3xl text-center underline px-10">
-		{task.name} - {task.task_key}
+	<div class={'grid grid-cols-3'}>
+		<a href={'/w3/task'} class="text-3xl">Tasks</a>
+		<div class="text-3xl text-center underline px-10">
+			{task.name} - {task.task_key}
+		</div>
 	</div>
 	<alert data-popup="examplePopup"> div </alert>
 	<div class="table-container p-5">
@@ -64,7 +67,7 @@
 				</tr>
 				<tr>
 					<th>Schedule:</th>
-					<td>{task.cron ? task.schedule : "Once"}</td>
+					<td>{task.cron ? task.schedule : 'Once'}</td>
 				</tr>
 				<tr>
 					<th>Status:</th>
@@ -88,7 +91,11 @@
 	<div class="grid grid-cols-3">
 		<form action="" method="post">
 			<button
-				formaction={paused ? '?/resume' : '?/pause'}
+				formaction={task.decodedStatus == 'notstarted'
+					? '?/start'
+					: task.decodedStatus == 'paused'
+					? '?/resume'
+					: '?/pause'}
 				class="btn w-64 py-4 mx-24  text-xl text-secondary-500 border-solid border-2 rounded-full border-primary-500"
 			>
 				Start / Stop
@@ -97,8 +104,8 @@
 
 		<button
 			class="btn w-64 py-4 mx-24  text-xl text-secondary-500 border-solid border-2 rounded-full border-primary-500"
-      on:click={() => goto(`/w2/task/${task.task_key}/edit`)}
-      disabled
+			on:click={() => goto(`/w2/task/${task.task_key}/edit`)}
+			disabled
 		>
 			Edit
 		</button>
@@ -109,7 +116,7 @@
 			Delete
 		</button>
 	</div>
-	
+
 	<form
 		class="border-2 rounded-3xl border-solid text-tertiary-400 border-primary-500 max-w-xl p-4 mx-auto my-24"
 		action=""
@@ -118,7 +125,7 @@
 		<div class="justify-center text-3xl text-center ">Credit Task/ Withdraw Credit</div>
 		<div class="grid grid-cols-1 py-2">
 			<label class="flex  items-end  text-3xl mx-2" for="">Amount</label>
-			<input class="w-sm input" name="amount" type="text" />
+			<input class="w-sm input" name="amount" placeholder="0 Task Credit" type="text" />
 		</div>
 		<div class="grid grid-cols-2">
 			<button
@@ -138,21 +145,21 @@
 <div class="mt-12 p-4">
 	<div class="p-4 text-3xl">Transactions</div>
 
-	{#if task.tx}
-		<div class="table table-container p-5">
-			<table class="table table-hover">
-				<thead>
-					<tr>
-						<!-- <th>S/N</th> -->
-						<th>Hash</th>
-						<th>Address</th>
-						<th>Amount</th>
-						<th>In/Out</th>
-						<th>Bal After Tx.</th>
-						<th>Bal Before Tx.</th>
-						<th>Timestamp</th>
-					</tr>
-				</thead>
+	<div class="table table-container p-5">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<!-- <th>S/N</th> -->
+					<th>Hash</th>
+					<th>Address</th>
+					<th>Amount</th>
+					<th>In/Out</th>
+					<th>Bal After Tx.</th>
+					<th>Bal Before Tx.</th>
+					<th>Timestamp</th>
+				</tr>
+			</thead>
+			{#if task.tx}
 				<tbody>
 					{#each task.tx as row, i}
 						<tr
@@ -161,25 +168,18 @@
 						>
 							<!-- <td>{i + 1}</td> -->
 							<td>{truncate(row.sig, 10)}</td>
-							<td
-								>{row.address != null
-									? row.address
-									: null}</td
-							>
-							<td
-								>{row.amount}</td
-							>
-							<td>{row.out ? 'Out' : 'In'}</td>
+							<td>{row.address != null ? row.address : null}</td>
+							<td>{row.amount}</td>
+							<td>{row.out ? 'OUT' : 'IN'}</td>
 							<td>{row.postBal}</td>
 							<td>{row.preBal}</td>
 							<td>{formatEpoch(row.timeStamp)}</td>
 						</tr>
 					{/each}
 				</tbody>
-			</table>
-		</div>
-	{:else}
-		<div>No Transactions Yet</div>
-	{/if}
+			{:else}
+				<div class="p-4">No Transactions Yet</div>
+			{/if}
+		</table>
+	</div>
 </div>
-

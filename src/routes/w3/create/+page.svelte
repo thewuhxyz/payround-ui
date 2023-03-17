@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { PayroundClient } from '$lib/payround/protocol';
 	import { payroundClientStore } from '$lib/stores/payroundClientStore';
 	import { AnchorProvider } from '@project-serum/anchor';
 	import { publicKey } from '@project-serum/anchor/dist/cjs/utils';
 	import { clusterApiUrl, Connection } from '@solana/web3.js';
 	import { walletStore } from '@svelte-on-solana/wallet-adapter-core';
+	import { get } from 'svelte/store';
 	import type { PageData } from './$types';
 
 	// export let data: PageData;
@@ -17,14 +19,39 @@
 	$: accountkey = connected && $payroundClientStore.pubkey.toBase58();
 	$: publickey = connected && $payroundClientStore.userId.toBase58();
 
-	let message: {};
+	let message: any;
+
+	$: message
 
 	let createAccount = async () => {
-		const tx = await $payroundClientStore.createAccountTx('some account 1');
-		console.log('tx:', tx);
+
+		const req = await fetch('/w3/api/account', {
+			method: 'POST',
+			body: JSON.stringify({address: publickey})
+		});
+		console.log("here");
+		
+		const { account } = await req.json()
+
+		console.log("account:", account)
+		
+		if (account) {
+			await goto("/w3/dashboard")
+		}
+		
+		let rent = await $payroundClientStore.getPubkeyBalance()
+		console.log("rent");
+		
+		if (rent == 0 || null) {
+
+			const tx = await $payroundClientStore.createAccountTx('some account 1');
+			console.log('tx:', tx);
+			rent =  await $payroundClientStore.getPubkeyBalance()
+		}
 		const response = {
 			name,
-			address: publickey
+			address: publickey,
+			rent
 		};
 
 		const resp = await fetch(`/w3/api/create`, {
@@ -42,7 +69,7 @@
 
 {publickey}
 <form class="form p-2 max-w-sm" on:submit|preventDefault={createAccount}>
-	<label for="name">
+	<!-- <label for="name">
 		<input
 			class="my-2 px-6 input bg-white text-secondary-500 placeholder:text-secondary-200"
 			name="name"
@@ -50,10 +77,9 @@
 			bind:value={name}
 			placeholder="what should we call you? (optional)"
 		/>
-	</label>
+	</label> -->
 	<button class="bg-secondary-500 w-full rounded-3xl p-4 my-2 btn" type="submit"
 		>Launch your Account 😎</button
 	>
 </form>
-
-{message}
+ <div>Success: {message.success}</div>

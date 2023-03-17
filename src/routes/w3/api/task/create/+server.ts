@@ -44,6 +44,7 @@ export const POST: RequestHandler = async ({request, locals }) => {
 	const schedule = req.schedule
 	const uiAmount = req.amount
 	const taskKey = req.taskKey
+	const rent = req.rent
 	console.log('userid:', userId);
 
 	const result = await supabase
@@ -58,6 +59,7 @@ export const POST: RequestHandler = async ({request, locals }) => {
 			task_group: groupId ? groupId : null,
 			thread_key: threadKey,
 			user_id: userId,
+			rent: Number(rent),
 		})
 		.select();
 

@@ -1,36 +1,35 @@
 import { goto } from '$app/navigation';
 import { AuthApiError } from '@supabase/supabase-js';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
-import { error } from 'console';
+import type {PageServerLoad} from "./$types"
+
+export const load: PageServerLoad = async ({parent}) => {
+	await parent()
+}
 
 export const actions: Actions = {
 	add: async ({ request, locals }) => {
-		const supabase = locals.supabase;
-		const session = await locals.getSession();
-		// const payroundAdmin = locals.payroundAdmin;
+		const sbHelper = locals.sbHelper
+		const session = await sbHelper.getSession();
 
 		if (!session) {
 			throw redirect(303, '/');
 		}
 
-		
 		const formData = Object.fromEntries(await request.formData());
 		console.log('forndata:', formData);
-		
+
 		const name = formData.name as string;
 		const address = formData.address as string;
-		
+
 		const user = session.user;
-		const data = await supabase.from("account").select("user_id").eq("id", user.id).single()
-		if (data.error ) throw error(404, "no such user")
-		
-		const submited = await supabase
+		const submited = await sbHelper.sb
 			.from('address_book')
 			.insert({
 				account_id: user.id,
 				name,
         address,
-				user_id: data.data.user_id!
+				user_id: await sbHelper.getUserId()
 			})
 			.select();
 		console.log('submitted:', submited);

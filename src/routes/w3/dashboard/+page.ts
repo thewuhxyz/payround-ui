@@ -4,20 +4,22 @@ import type { PageLoad } from './$types';
 import { get } from 'svelte/store';
 
 
-export const load = (async ({ fetch }) => {
+export const load = (async ({ fetch, parent }) => {
 
 	// const req = await fetch ("/w3/api/dashboard", {
 	// 	method: "POST"
 	// })
 
+	await parent()
+
 	async function getUpcomingTasks() {
-		if (!get(walletStore).publicKey) 
+		if (!get(walletStore).publicKey) return;
 		if (!get(payroundClientStore)) return;
 
 		const userId = get(payroundClientStore).userId.toBase58()
 		const req = await fetch('/w3/api/dashboard', {
 			method: 'POST',
-			body: JSON.stringify({userId})
+			body: JSON.stringify({address: userId})
 		});
 		// const some = await req.json()
 		// console.log("req:", some)
@@ -25,14 +27,14 @@ export const load = (async ({ fetch }) => {
 	}
 	
 	async function getTxFormatedData() {
-		if (!get(walletStore).publicKey) 
+		if (!get(walletStore).publicKey) return;
 		if (!get(payroundClientStore)) return;
 
 		const balance = await get(payroundClientStore).connection.getTokenAccountBalance(
 			get(payroundClientStore).usdcAddress
 		);
 		// console.log('balance from load: ', balance);
-		if (balance.value.uiAmount == 0) return null
+		// if (balance.value.uiAmount == 0) return null
 		const txs = await get(payroundClientStore).formatTxData(10)
 		console.log(txs)
 		return txs

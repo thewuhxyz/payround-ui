@@ -11,12 +11,13 @@
 	import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js';
 	import { payroundClientStore } from '$lib/stores/payroundClientStore';
 	import PayroundClientProvider from '$lib/components/PayroundClientProvider.svelte';
-	import { balanceStore } from '$lib/stores/balance-store';
+	import { balanceStore, balancesStore } from '$lib/stores/balance-store';
 	import { get } from 'svelte/store';
+	import { truncate } from '$lib/helpers';
 
 	export const ssr = false
 
-	export let data: LayoutData;
+	// export let data: LayoutData;
 
 	const localStorageKey = 'walletAdapter';
 	// const endpoint = WalletAdapterNetwork.Devnet;
@@ -25,9 +26,18 @@
 
 	let wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
 
+	let balance: string
+	let address: string = ""
+	let pubkey: string = ""
+	let credit: number = 0
+
 	$: autoConnect = browser && Boolean(getLocalStorage('autoconnect', true));
 
 	$: walletStore;
+	$: balance;
+	$: address
+	$: credit
+	$: pubkey
 
 	$: ({ connected } = $walletStore);
 	$: ({ sendTransaction, signTransaction, signAllTransactions, signMessage, publicKey } =
@@ -41,34 +51,40 @@
 	$: hasWalletReadyForFetch =
 		$walletStore.connected && !$walletStore.connecting && !$walletStore.disconnecting;
 
+	
+
 	$: if (hasWalletReadyForFetch && hasWorkspaceProgramReady) {
 		console.log('Wallet and Workspace ready!');
 
-		// Get the user's SOL balance using balanceStore
-		
+	
+		// balanceStore.getUserUSDCBalance($walletStore.publicKey as PublicKey, $payroundClientStore.connection);
+		balancesStore.getUserBalances($payroundClientStore.usdcAddress as PublicKey, $payroundClientStore.pubkey, $payroundClientStore.connection);
+		balance = $balancesStore.balance.toLocaleString()
+		credit = $balancesStore.credit
 
-		
+		address = $payroundClientStore.pubkey.toBase58()
+		pubkey = $payroundClientStore.userId.toBase58()
+
+
 	}
 	
-	$: balance = data.balance
-	// export let data: LayoutData;
+	// $: balance = connected && data.balance
+	// $: account = connected && data.user
+	// $: credit = connected && data.credit
 
-	// $: balance = data.uiBalance!.toString();
-	// $: nickname=data.nickname!
-	// $: data.credits;
-	// $: data.userAccountKey;
-	// $: email = data.email!;
+	// $: console.log("credit:", credit)
+
 </script>
 
 <WalletProvider {localStorageKey} {wallets} {autoConnect} />
 <PayroundClientProvider {network} />
 <AppLayout
 	route={'w3'}
-	hide={false}
-	address={""} 
+	show={true}
+	address={address || ""} 
 	balance={balance || "0"}
-	credit={0}
-	email={""}
+	credit={credit || 0}
+	email={truncate(pubkey, 10) || ""}
 	name={""}
 >
 	<slot />

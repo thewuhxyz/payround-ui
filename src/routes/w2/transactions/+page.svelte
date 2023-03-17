@@ -13,21 +13,21 @@
 <div class="mt-12 p-4">
 	<div class="p-4 text-3xl">Transactions</div>
 
-	{#if transactions}
-		<div class="table table-container p-5">
-			<table class="table table-hover">
-				<thead>
-					<tr>
-						<!-- <th>S/N</th> -->
-						<th>Hash</th>
-						<th>Address</th>
-						<th>Amount</th>
-						<th>In/Out</th>
-						<th>Bal After Tx.</th>
-						<th>Bal Before Tx.</th>
-						<th>Timestamp</th>
-					</tr>
-				</thead>
+	<div class="table table-container p-5">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<!-- <th>S/N</th> -->
+					<th>Hash</th>
+					<th>Address</th>
+					<th>Amount</th>
+					<th>In/Out</th>
+					<th>Bal After Tx.</th>
+					<th>Bal Before Tx.</th>
+					<th>Timestamp</th>
+				</tr>
+			</thead>
+			{#if transactions.length}
 				<tbody>
 					{#each transactions as row, i}
 						<tr
@@ -36,14 +36,8 @@
 						>
 							<!-- <td>{i + 1}</td> -->
 							<td>{truncate(row.sig, 10)}</td>
-							<td
-								>{row.address != null
-									? row.address
-									: null}</td
-							>
-							<td
-								>{row.amount}</td
-							>
+							<td>{row.address != null ? row.address : null}</td>
+							<td>{row.amount}</td>
 							<td>{row.out ? 'Out' : 'In'}</td>
 							<td>{row.postBal}</td>
 							<td>{row.preBal}</td>
@@ -51,9 +45,9 @@
 						</tr>
 					{/each}
 				</tbody>
-			</table>
-		</div>
-	{:else}
-		<div>No Transactions Yet</div>
-	{/if}
+			{:else}
+				<div class="p-4">No Transactions Yet</div>
+			{/if}
+		</table>
+	</div>
 </div>

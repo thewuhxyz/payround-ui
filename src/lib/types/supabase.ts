@@ -14,70 +14,73 @@ export interface Database {
           account_created: boolean
           account_key: string | null
           created_at: string
-          degen: boolean
+          degen: boolean | null
           email: string | null
-          id: string
+          id: string | null
           nickname: string | null
+          rent: number | null
           stripe_id: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           account_created?: boolean
           account_key?: string | null
           created_at?: string
-          degen?: boolean
+          degen?: boolean | null
           email?: string | null
-          id: string
+          id?: string | null
           nickname?: string | null
+          rent?: number | null
           stripe_id?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           account_created?: boolean
           account_key?: string | null
           created_at?: string
-          degen?: boolean
+          degen?: boolean | null
           email?: string | null
-          id?: string
+          id?: string | null
           nickname?: string | null
+          rent?: number | null
           stripe_id?: string | null
-          user_id?: string | null
+          user_id?: string
         }
       }
       address_book: {
         Row: {
-          account_id: string | null
           address: string | null
           created_at: string | null
           id: number
           name: string | null
+          number: number
           user_id: string
         }
         Insert: {
-          account_id?: string | null
           address?: string | null
           created_at?: string | null
           id?: number
           name?: string | null
+          number?: number
           user_id: string
         }
         Update: {
-          account_id?: string | null
           address?: string | null
           created_at?: string | null
           id?: number
           name?: string | null
+          number?: number
           user_id?: string
         }
       }
       task: {
         Row: {
-          account_id: string | null
           amount: number
           created_at: string
           cron: boolean
           name: string | null
           recipient: string
+          rent: number
           schedule: string
           task_group: string | null
           task_key: string
@@ -85,12 +88,12 @@ export interface Database {
           user_id: string
         }
         Insert: {
-          account_id?: string | null
           amount: number
           created_at?: string
           cron: boolean
           name?: string | null
           recipient: string
+          rent: number
           schedule: string
           task_group?: string | null
           task_key: string
@@ -98,12 +101,12 @@ export interface Database {
           user_id: string
         }
         Update: {
-          account_id?: string | null
           amount?: number
           created_at?: string
           cron?: boolean
           name?: string | null
           recipient?: string
+          rent?: number
           schedule?: string
           task_group?: string | null
           task_key?: string
@@ -113,7 +116,6 @@ export interface Database {
       }
       task_group: {
         Row: {
-          account_id: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -121,7 +123,6 @@ export interface Database {
           user_id: string
         }
         Insert: {
-          account_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -129,39 +130,9 @@ export interface Database {
           user_id: string
         }
         Update: {
-          account_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
-          name?: string | null
-          user_id?: string
-        }
-      }
-      user: {
-        Row: {
-          account_created: boolean
-          account_id: string | null
-          account_key: string
-          created_at: string
-          degen: boolean
-          name: string | null
-          user_id: string
-        }
-        Insert: {
-          account_created: boolean
-          account_id?: string | null
-          account_key: string
-          created_at?: string
-          degen: boolean
-          name?: string | null
-          user_id: string
-        }
-        Update: {
-          account_created?: boolean
-          account_id?: string | null
-          account_key?: string
-          created_at?: string
-          degen?: boolean
           name?: string | null
           user_id?: string
         }

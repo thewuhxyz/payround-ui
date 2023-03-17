@@ -26,26 +26,31 @@ export class PayroundClient {
 	static MOCK_USDC_MINT = new PublicKey('48JBvpStoDYJmQBFuENcCm6dBomPC2z9r4SfJJa9ui9H');
 	static CLOCKWORK_THREAD_SEED = 'thread';
 
+	static MEGALAMPORT = 1000000
+
 	static CLOCKWORK_THREAD_PROGRAM_ID = new PublicKey(
 		'CLoCKyJ6DXBJqqu2VWx9RLbgnwwR6BMHHuyasVmfMzBh'
 	);
 
 	connection: anchor.web3.Connection;
 	userId: PublicKey;
-
+	program: anchor.Program<Payround>
+	
 	constructor(
-		public program: anchor.Program<Payround>,
+		// public program: anchor.Program<Payround>,
 		public provider: anchor.Provider,
 		public network: string,
 		userId?: string
-	) {
-		this.connection = program.provider.connection;
+		) {
+		this.program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
+		this.connection = this.program.provider.connection;
 		this.userId = userId ? new PublicKey(userId) : this.provider.publicKey!;
 	}
 
 	static connect(provider: anchor.Provider, network: string, userId?: string): PayroundClient {
-		const program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
-		return new PayroundClient(program, provider, network, userId);
+		// const program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
+		return new PayroundClient(provider, network, userId);
+		// return new PayroundClient(program, provider, network, userId);
 	}
 
 	static getTokenAddress(mint: PublicKey, owner: PublicKey, allowPda?: boolean) {
@@ -320,7 +325,7 @@ export class PayroundClient {
 	async creditTaskTx(task: PublicKey, amount: number): Promise<string> {
 		const taskAccount = await this.fetchTaskAccount(task);
 		return await this.program.methods
-			.creditTask(new anchor.BN(amount))
+			.creditTask(new anchor.BN(amount * PayroundClient.MEGALAMPORT))
 			.accounts({
 				authority: this.provider.publicKey,
 				payroundAccount: this.pubkey,
@@ -335,7 +340,7 @@ export class PayroundClient {
 	async withdrawTaskCreditTx(taskKey: PublicKey, amount: number) {
 		const task = await this.fetchTaskAccount(taskKey);
 		return await this.program.methods
-			.withdrawTaskCredit(new anchor.BN(amount))
+			.withdrawTaskCredit(new anchor.BN(amount * PayroundClient.MEGALAMPORT))
 			.accounts({
 				authority: this.provider.publicKey,
 				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
@@ -394,6 +399,10 @@ export class PayroundClient {
 		return getAssociatedTokenAddressSync(mint, owner, allowPda);
 	}
 
+	async getPubkeyBalance() {
+		return this.connection.getBalance(this.pubkey)
+	}
+
 	async getUsdcAccount(address: PublicKey) {
 		return await getAccount(this.connection, address);
 	}
@@ -427,8 +436,8 @@ export class PayroundClient {
 		return await this.formatTxDataFor(this.usdcAddress, limit);
 	}
 
-	async formatTxDataFor(address: PublicKey, limit?: number) {
-		const txData = await getTransactionsFilterByMint(address, this.connection, { limit });
+	async formatTxDataFor(address: PublicKey, limit?: number) {		
+		const txData = await getTransactionsFilterByMint(address, this.connection, PayroundClient.MOCK_USDC_MINT, { limit });
 		console.log('txData:', txData);
 
 		return txData.map((tx) => {
@@ -460,6 +469,6 @@ export class PayroundClient {
 				amount,
 				address
 			};
-		});
+		}).filter(i => i.postBal !== i.preBal);
 	}
 }

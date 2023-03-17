@@ -1,32 +1,30 @@
 import { goto } from '$app/navigation';
-import { PublicKey } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { AuthApiError } from '@supabase/supabase-js';
 import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
+	const sbHelper = locals.sbHelper;
 	const session = await locals.getSession();
-	const supabase = locals.supabase;
 	if (!session) {
 		throw redirect(303, '/');
 	}
-	const user = session.user;
-	const groupResult = await supabase
-		.from('task_group')
-		.select('name, id')
-		.eq('account_id', user.id);
-	const groups = groupResult.data;
+	const groupResult = await sbHelper.getAllTaskGroupForUser()
+	const groups = groupResult.map(i => {
+		return {name: i.name, id: i.id}
+	});
 
-	const addressBookResult = await supabase
-		.from('address_book')
-		.select('name, address')
-		.eq('account_id', user.id);
-	const addresses = addressBookResult.data;
+	const addressBookResult = await sbHelper.getAllAddressesForUser()
+	const addresses = addressBookResult.map(i => {
+		return {address: i.address, name: i.name}});
 	if (!addresses) {
 		console.error('no group returned');
 	}
 	console.log('data:', addresses);
 	console.log('data:', groups);
+
+	await parent()
 
 	return {
 		groups,
@@ -36,16 +34,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	createtask: async ({ request, locals }) => {
-		const supabase = locals.supabase;
-		const session = await locals.getSession();
-		const payroundAdmin = locals.payroundAdmin;
-
+		const sbHelper = locals.sbHelper;
+		const session = await sbHelper.getSession();
+		
 		if (!session) {
 			throw redirect(303, '/');
 		}
+		const user = session.user
+		const userId = await sbHelper.getUserId()
+		const payroundAdmin = locals.payroundAdmin(userId);
 
 		const formData = Object.fromEntries(await request.formData());
-		console.log('task data:', formData);
+		// console.log('task data:', formData);
 		const name = formData.name as string;
 		const recipient = formData.recipient as string;
 		const uiAmount = formData.amount as string;
@@ -55,19 +55,15 @@ export const actions: Actions = {
     let address;
 
     if (formData.sendto == "payround") {
-			console.log("here:");
-			
-				const addressData = await supabase
-					.from('account')
-					.select('account_key')
-					.eq('email', recipient)
-					.single();
+			try {
 
-				address = addressData.data?.account_key!;
+				const addressData = await sbHelper.getAccountByEmail(recipient)
+				address = addressData.account_key!;
         console.log(' address:', address);
-				if (!address) {
-					throw error(401, 'address not found');
-				}
+			} catch (e) {
+				console.log(e);
+				return {success: false, message: "could not find address"}
+			}
 
     } else {
       address = recipient
@@ -94,18 +90,8 @@ export const actions: Actions = {
 
 		console.log('schedule:', schedule);
 
-		const user = session.user;
-
-		const userId = (await supabase.from('account').select('user_id').eq('id', user.id).single())
-			.data?.user_id;
-		console.log('user id:', userId);
-
-		if (!userId) {
-			console.error('error: no user id found');
-		}
-
 		try {
-			const taskKey = await payroundAdmin(userId!).createTaskTx(
+			const taskKey = await payroundAdmin.createTaskTx(
 				new PublicKey(address),
 				Number(uiAmount),
 				{cron: {schedule, skippable: false}}
@@ -113,16 +99,18 @@ export const actions: Actions = {
 
 			console.log('task created successfully. task key:', taskKey);
 
-      const tx = await payroundAdmin(userId!).startTaskTx(new PublicKey(taskKey), 0.005)
+      const tx = await payroundAdmin.startTaskTx(new PublicKey(taskKey), 0.005)
       console.log("tx:", tx);
       
 
-			const threadKey = await payroundAdmin(userId!).getThreadKey(taskKey);
+			const threadKey = await payroundAdmin.getThreadKey(taskKey);
+			const rent = (await payroundAdmin.connection.getBalance(new PublicKey(threadKey))) - 0.005 * LAMPORTS_PER_SOL
 
-			const result = await supabase
+			const userId = await sbHelper.getUserId()
+
+			const result = await sbHelper.sb
 				.from('task')
 				.insert({
-					account_id: user.id,
 					task_key: taskKey,
 					name,
 					amount: Number(uiAmount),
@@ -131,7 +119,8 @@ export const actions: Actions = {
 					recipient,
 					task_group: groupId ? groupId : null,
 					thread_key: threadKey,
-					user_id: userId!
+					rent,
+					user_id: userId,
 				})
 				.select();
 
@@ -139,7 +128,7 @@ export const actions: Actions = {
 		} catch (e) {
 			console.log('error:', e);
 		}
-
-		throw redirect(303, '/w2/task/create');
+		return {success: true}
+		
 	}
 };

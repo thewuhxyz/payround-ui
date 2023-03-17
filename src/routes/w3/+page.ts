@@ -14,13 +14,29 @@ export const load = (async ({ fetch, params, setHeaders }) => {
 
 	// U: Moved to a +page.ts so can invalidateAll() to rerun load()
 	// NOTE No longer need to rebuild Anchor since I have workspaceStore
+	// async function isAccountCreated() {
+	// 	if (!get(walletStore).publicKey) return;
+	// 	if (!get(payroundClientStore)) return;
+
+	// 	const balance = await get(payroundClientStore).connection.getBalance(get(payroundClientStore).pubkey)
+	// 	console.log('balance from load: ', balance);
+	// 	return balance > 0 ;
+	// }
+
 	async function isAccountCreated() {
 		if (!get(walletStore).publicKey) return;
 		if (!get(payroundClientStore)) return;
 
-		const balance = await get(payroundClientStore).connection.getBalance(get(payroundClientStore).pubkey)
-		console.log('balance from load: ', balance);
-		return balance > 0 ;
+		const userId = get(payroundClientStore).userId.toBase58();
+		const req = await fetch('/w3/api/account', {
+			method: 'POST',
+			body: JSON.stringify({ address: userId })
+		});
+		const { account } = await req.json();
+
+		console.log('account:', account);
+		// console.log("req:", some)
+		return await account;
 	}
 
 	return {

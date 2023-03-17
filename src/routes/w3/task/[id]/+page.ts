@@ -24,7 +24,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 		const taskKey = new PublicKey(params.id);
 		const taskAccount = await get(payroundClientStore).fetchTaskAccount(taskKey)
 		const thread = taskAccount.thread
-		const threadBalance = await get(payroundClientStore).connection.getBalance(thread);
+		const threadBalance = (await get(payroundClientStore).connection.getBalance(thread)) - task.rent;
 
 		const status = taskAccount.status
 		let decodedStatus;

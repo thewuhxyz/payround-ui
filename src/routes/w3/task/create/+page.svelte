@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { payroundClientStore } from '$lib/stores/payroundClientStore';
-	import { PublicKey } from '@solana/web3.js';
+	import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 	import { walletStore } from '@svelte-on-solana/wallet-adapter-core';
 	import type { PageData } from './$types';
 
@@ -105,6 +105,9 @@
 
 			const threadKey = await payroundClient.getThreadKey(taskKey);
 
+			const rent = (await payroundClient.connection.getBalance(new PublicKey(threadKey))) - 0.005 * LAMPORTS_PER_SOL
+
+
 			const req = await fetch('/w3/api/task/create', {
 				method: 'POST',
 				body: JSON.stringify({
@@ -115,6 +118,7 @@
 					recipient,
 					groupId,
 					threadKey,
+					rent,
 					address: payroundClient.userId.toBase58()
 				})
 			});
@@ -158,7 +162,7 @@
 	</div>
 	<div class={` text-3xl py-2 ${sendto == 'payround' ? '' : 'hidden'}`}>
 		<label for="">Email</label>
-		<input class="input" bind:value={email} placeholder="someone@example.com" name="recipient" type="text" />
+		<input class="input" bind:value={recipient} placeholder="someone@example.com" name="recipient" type="text" />
 	</div>
 	<div class="grid grid-cols-1 py-2">
 		<label class="flex  items-end  text-3xl mx-2" for="amount">Amount</label>

@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const req = await request.json();
 	const userId = req.address as string;
 
-	const addressBookResult = await supabase
+	const addressBookResult = await supabase.sb
 		.from('address_book')
 		.select('name, address')
 		.eq('user_id', userId);

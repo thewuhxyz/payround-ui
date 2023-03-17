@@ -10,9 +10,12 @@ export const load: PageLoad = async ({ fetch }) => {
 		const userId = get(payroundClientStore).userId.toBase58();
 		const req = await fetch('/w3/api/send', {
 			method: 'POST',
-			body: JSON.stringify({ userId })
+			body: JSON.stringify({ address: userId })
 		});
-		return await req.json();
+		const { addresses }  = await req.json();
+		console.log("addresses:", addresses);
+		return addresses
+		
 	}
 
 	return {

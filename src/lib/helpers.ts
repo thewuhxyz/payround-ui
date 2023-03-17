@@ -25,14 +25,14 @@ export const getTransactionsFor = async (address: PublicKey, connection: Connect
 	return parsedTransactions;
 };
 
-export const getTransactionsFilterByMint = async (address: PublicKey, connection: Connection, options?:SignaturesForAddressOptions) => {
+export const getTransactionsFilterByMint = async (address: PublicKey, connection: Connection, mint: PublicKey, options?:SignaturesForAddressOptions) => {
 	const i = await getTransactionsFor(address, connection, options);
 	return i.filter((i) => {
-		return filterTxByMint2(i.parsedTx!.meta);
+		return filterTxByMint2(i.parsedTx!.meta, mint);
 	});
 };
 
-export const filterTxByMint = (txMeta: ParsedTransactionMeta | null) => {
+export const filterTxByMint = (txMeta: ParsedTransactionMeta | null, mint: PublicKey) => {
 	if (
 		txMeta == null ||
 		txMeta.preTokenBalances == null ||
@@ -40,10 +40,11 @@ export const filterTxByMint = (txMeta: ParsedTransactionMeta | null) => {
 		txMeta.preTokenBalances.length == 0
 	)
 		return false;
-	return txMeta.preTokenBalances![0].mint == PayroundClient.MOCK_USDC_MINT.toBase58();
+	return txMeta.preTokenBalances![0].mint == mint.toBase58();
 };
 
-export const filterTxByMint2 = (txMeta: ParsedTransactionMeta | null) => {
+export const filterTxByMint2 = (txMeta: ParsedTransactionMeta | null, mint: PublicKey) => {
+	
 	if (
 		txMeta == null ||
 		txMeta.preTokenBalances == null ||
@@ -52,10 +53,10 @@ export const filterTxByMint2 = (txMeta: ParsedTransactionMeta | null) => {
 		undefined
 	)
 		return false;
-	if (txMeta.preTokenBalances?.length > 0 || txMeta.postTokenBalances.length > 0)
+	if (txMeta.preTokenBalances?.length > 0 && txMeta.postTokenBalances.length > 0)
 		return (
-			txMeta.preTokenBalances![0].mint == PayroundClient.MOCK_USDC_MINT.toBase58() ||
-			txMeta.postTokenBalances![0].mint == PayroundClient.MOCK_USDC_MINT.toBase58()
+			txMeta.preTokenBalances![0].mint == mint.toBase58() ||
+			txMeta.postTokenBalances![0].mint == mint.toBase58()
 		);
 	else {
 		return false
@@ -73,9 +74,8 @@ export const formatEpoch = (epochMs: number | string) =>{
 	const formatHour = hour%12 == 0 ? '12' : formatTime(hour)
 	const formatMin = formatTime(new Date(epochMs).getMinutes())
 	const formatSec = formatTime(new Date(epochMs).getSeconds())
-	return `${new Date(Number(epochMs)).toDateString()}, ${formatHour}:${formatMin}:${formatSec} ${period}`;
+	return `${new Date(Number(epochMs)).toDateString()}, ${formatHour}:${formatMin}:${formatSec} ${period} UTC`;
 }
 
 const formatTime = (number: number) => number < 10 ? `0${number}` : `${number}`;
-
 

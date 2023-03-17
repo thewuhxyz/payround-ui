@@ -13,9 +13,10 @@
 </script>
 
 <div class="mt-12 p-4">
+	<a href={"/w2/groups"} class="text-3xl ">Groups</a>
 	<div class="justify-between flex p-4">
 		<div>
-			<div>Name: {group.name}</div>
+			<div class="text-xl">Name: {group.name}</div>
 			{#if group.description}
 				<div>Description: {group.name}</div>
 			{/if}
@@ -29,20 +30,20 @@
 		>
 	</div>
 
-	{#if tasks}
-		<div class="table-container p-5">
-			<table class="table table-hover">
-				<thead>
-					<tr>
-						<th>S/N</th>
-						<th>Name</th>
-						<th>Address</th>
-						<th>Recipient</th>
-						<th>Amount</th>
-						<th>Next Run</th>
-						<th>Created At</th>
-					</tr>
-				</thead>
+	<div class="table-container p-5">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>S/N</th>
+					<th>Name</th>
+					<th>Address</th>
+					<th>Recipient</th>
+					<th>Amount</th>
+					<th>Next Run</th>
+					<th>Created At</th>
+				</tr>
+			</thead>
+			{#if tasks.length}
 				<tbody>
 					{#each tasks as row, i}
 						<tr id={row.task_key} on:click={() => goto(`/w2/task/${row.task_key}`)}>
@@ -56,9 +57,10 @@
 						</tr>
 					{/each}
 				</tbody>
+				{:else}
+				<div class="p-4">No Groups Yet</div>
+			{/if}
 			</table>
 		</div>
-	{:else}
-		<div>Group List Empty</div>
-	{/if}
+	
 </div>

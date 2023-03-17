@@ -12,7 +12,7 @@ export const load: PageLoad = (async ({ fetch }) => {
 
 		
 		const userId = get(payroundClientStore).userId.toBase58();
-		const req = await fetch('/w3/api/groups', {
+		const req = await fetch('/w3/api/group', {
 			method: 'POST',
 			body: JSON.stringify({ address: userId })
 		});

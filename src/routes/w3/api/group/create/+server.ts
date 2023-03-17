@@ -13,7 +13,7 @@ export const POST:RequestHandler = async ({ request, locals }) => {
 		const description = req.desc as string;
     const userId = req.address as string;
 
-		const submited = await supabase
+		const submited = await supabase.sb
 			.from('task_group')
 			.insert({
 				// account_id: user.id,
