@@ -1,5 +1,6 @@
 import type * as anchor from '@project-serum/anchor';
 import type { PublicKey } from '@solana/web3.js';
+import type BN from 'bn.js';
 
 export type ScheduleOptions = {
 	freq: string;
@@ -7,17 +8,17 @@ export type ScheduleOptions = {
 };
 
 export type TaskOptions = {
-	amount: anchor.BN | null;
+	amount: BN | null;
 	scheduleOptions: ClockworkTrigger | null;
 };
 
 // // clockwork trigger I am interested in
 export interface ClockworkTrigger {
 	cron?: { schedule: string; skippable: boolean };
-	epoch?: { epoch: anchor.BN };
+	epoch?: { epoch: BN };
 	now?: {};
-	slot?: { slot: anchor.BN };
-	account?: { address: PublicKey; offset: anchor.BN; size: anchor.BN };
+	slot?: { slot: BN };
+	account?: { address: PublicKey; offset: BN; size: BN };
 }
 
 export type TaskStatus = { notstarted: {} } | { started: {} } | { paused: {} } | { ended: {} };

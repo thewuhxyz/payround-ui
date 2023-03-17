@@ -19,6 +19,7 @@ import {
 // import { } from '@clockwork-xyz/sdk';
 import type { ClockworkTrigger, TaskOptions } from './types';
 import { getTransactionsFilterByMint } from '$lib/helpers';
+import BN from 'bn.js';
 
 export class PayroundClient {
 	static PAYROUND_ID = new PublicKey('BQpMmaGZ9wgYvUQGcBarTr3puuDid1W3tUj7Fz3pWUkV');
@@ -26,7 +27,7 @@ export class PayroundClient {
 	static MOCK_USDC_MINT = new PublicKey('48JBvpStoDYJmQBFuENcCm6dBomPC2z9r4SfJJa9ui9H');
 	static CLOCKWORK_THREAD_SEED = 'thread';
 
-	static MEGALAMPORT = 1000000
+	static MEGALAMPORT = 1000000;
 
 	static CLOCKWORK_THREAD_PROGRAM_ID = new PublicKey(
 		'CLoCKyJ6DXBJqqu2VWx9RLbgnwwR6BMHHuyasVmfMzBh'
@@ -34,14 +35,14 @@ export class PayroundClient {
 
 	connection: anchor.web3.Connection;
 	userId: PublicKey;
-	program: anchor.Program<Payround>
-	
+	program: anchor.Program<Payround>;
+
 	constructor(
 		// public program: anchor.Program<Payround>,
 		public provider: anchor.Provider,
 		public network: string,
 		userId?: string
-		) {
+	) {
 		this.program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
 		this.connection = this.program.provider.connection;
 		this.userId = userId ? new PublicKey(userId) : this.provider.publicKey!;
@@ -116,7 +117,7 @@ export class PayroundClient {
 
 	async makeTransferTx(recipient: PublicKey, uiAmount: number): Promise<string> {
 		return await this.program.methods
-			.makeTransfer(new anchor.BN(uiAmount * 10 ** 6))
+			.makeTransfer(new BN(uiAmount * 10 ** 6))
 			.accounts({
 				accountAta: this.usdcAddress,
 				associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -141,7 +142,7 @@ export class PayroundClient {
 		const task = Keypair.generate();
 		const amount = uiAmount * 10 ** 6; // mock usdc decimals
 		const tx = await this.program.methods
-			.createTask(new anchor.BN(amount), trigger)
+			.createTask(new BN(amount), trigger)
 			.accounts({
 				authority: this.provider.publicKey,
 				payroundAccount: this.pubkey,
@@ -170,7 +171,7 @@ export class PayroundClient {
 	// 	const task = Keypair.generate();
 	// 	const amount = uiAmount * 10 ** 6; // mock usdc decimals
 	// 	const tx = await this.program.methods
-	// 		.createTask(new anchor.BN(amount), amount, trigger)
+	// 		.createTask(new (amount), amount, trigger)
 	// 		.accounts({
 	// 			authority: this.provider.publicKey,
 	// 			payroundAccount: this.pubkey,
@@ -239,7 +240,7 @@ export class PayroundClient {
 		console.log('task account thread address:', taskAccount.thread.toBase58());
 
 		return await this.program.methods
-			.startTask(new anchor.BN(amount * LAMPORTS_PER_SOL))
+			.startTask(new BN(amount * LAMPORTS_PER_SOL))
 			.accounts({
 				accountAta: this.usdcAddress,
 				associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -325,7 +326,7 @@ export class PayroundClient {
 	async creditTaskTx(task: PublicKey, amount: number): Promise<string> {
 		const taskAccount = await this.fetchTaskAccount(task);
 		return await this.program.methods
-			.creditTask(new anchor.BN(amount * PayroundClient.MEGALAMPORT))
+			.creditTask(new BN(amount * PayroundClient.MEGALAMPORT))
 			.accounts({
 				authority: this.provider.publicKey,
 				payroundAccount: this.pubkey,
@@ -340,7 +341,7 @@ export class PayroundClient {
 	async withdrawTaskCreditTx(taskKey: PublicKey, amount: number) {
 		const task = await this.fetchTaskAccount(taskKey);
 		return await this.program.methods
-			.withdrawTaskCredit(new anchor.BN(amount * PayroundClient.MEGALAMPORT))
+			.withdrawTaskCredit(new BN(amount * PayroundClient.MEGALAMPORT))
 			.accounts({
 				authority: this.provider.publicKey,
 				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
@@ -400,7 +401,7 @@ export class PayroundClient {
 	}
 
 	async getPubkeyBalance() {
-		return this.connection.getBalance(this.pubkey)
+		return this.connection.getBalance(this.pubkey);
 	}
 
 	async getUsdcAccount(address: PublicKey) {
@@ -436,39 +437,46 @@ export class PayroundClient {
 		return await this.formatTxDataFor(this.usdcAddress, limit);
 	}
 
-	async formatTxDataFor(address: PublicKey, limit?: number) {		
-		const txData = await getTransactionsFilterByMint(address, this.connection, PayroundClient.MOCK_USDC_MINT, { limit });
+	async formatTxDataFor(address: PublicKey, limit?: number) {
+		const txData = await getTransactionsFilterByMint(
+			address,
+			this.connection,
+			PayroundClient.MOCK_USDC_MINT,
+			{ limit }
+		);
 		console.log('txData:', txData);
 
-		return txData.map((tx) => {
-			const preBal =
-				tx.parsedTx!.meta!.preTokenBalances!.filter((i) => i.owner == this.pubkey.toBase58())[0]
-					.uiTokenAmount.uiAmount || 0;
+		return txData
+			.map((tx) => {
+				const preBal =
+					tx.parsedTx!.meta!.preTokenBalances!.filter((i) => i.owner == this.pubkey.toBase58())[0]
+						.uiTokenAmount.uiAmount || 0;
 
-			const postBal =
-				tx.parsedTx!.meta!.postTokenBalances!.filter((i) => i.owner == this.pubkey.toBase58())[0]
-					.uiTokenAmount.uiAmount || 0;
+				const postBal =
+					tx.parsedTx!.meta!.postTokenBalances!.filter((i) => i.owner == this.pubkey.toBase58())[0]
+						.uiTokenAmount.uiAmount || 0;
 
-			const out = preBal > postBal;
+				const out = preBal > postBal;
 
-			const token = tx.parsedTx!.meta!.postTokenBalances!.filter(
-				(i) => i.owner !== this.pubkey.toBase58()
-			);
+				const token = tx.parsedTx!.meta!.postTokenBalances!.filter(
+					(i) => i.owner !== this.pubkey.toBase58()
+				);
 
-			const address = token.length == 0 ? '-' : token[0].owner;
+				const address = token.length == 0 ? '-' : token[0].owner;
 
-			const amount = Math.abs(preBal - postBal);
+				const amount = Math.abs(preBal - postBal);
 
-			return {
-				sig: tx.sigInfo.signature,
-				timeStamp: tx.sigInfo.blockTime! * 1000,
-				mint: tx.parsedTx!.meta!.preTokenBalances![0].mint,
-				out,
-				preBal,
-				postBal,
-				amount,
-				address
-			};
-		}).filter(i => i.postBal !== i.preBal);
+				return {
+					sig: tx.sigInfo.signature,
+					timeStamp: tx.sigInfo.blockTime! * 1000,
+					mint: tx.parsedTx!.meta!.preTokenBalances![0].mint,
+					out,
+					preBal,
+					postBal,
+					amount,
+					address
+				};
+			})
+			.filter((i) => i.postBal !== i.preBal);
 	}
 }
