@@ -7,7 +7,7 @@ export const POST: RequestHandler  = async ({ request, locals }) => {
 
 	const req = await request.json()
 	const userId = req.address as string
-	const rent = req.rent as string
+	// const rent = req.rent as string
 	console.log('userid:', userId)
 	const name = req.name as string
 		const supabase = locals.sbAdmin;
@@ -30,7 +30,7 @@ export const POST: RequestHandler  = async ({ request, locals }) => {
 					account_key: payroundAdmin(userId).pubkey.toBase58(),
 					account_created: true,
 					nickname: name,
-					rent: Number(rent),
+					// rent: Number(rent),
 				})
 				.select();
 			console.log('some:', some);

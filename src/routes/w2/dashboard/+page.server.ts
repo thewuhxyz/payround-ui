@@ -95,7 +95,7 @@ export const load: PageServerLoad = async ({ locals , parent}) => {
 
 	// console.log('data:', data);
 
-	const txFormatedData = await payroundClient.formatTxData()
+	const txFormatedData = await payroundClient.formatTxData(10)
 
 	await parent();
 

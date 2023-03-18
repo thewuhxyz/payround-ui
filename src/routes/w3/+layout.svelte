@@ -14,6 +14,7 @@
 	import { balanceStore, balancesStore } from '$lib/stores/balance-store';
 	import { get } from 'svelte/store';
 	import { truncate } from '$lib/helpers';
+	import { PayroundClient } from '$lib/payround/protocol';
 
 	export const ssr = false
 
@@ -60,7 +61,7 @@
 		// balanceStore.getUserUSDCBalance($walletStore.publicKey as PublicKey, $payroundClientStore.connection);
 		balancesStore.getUserBalances($payroundClientStore.usdcAddress as PublicKey, $payroundClientStore.pubkey, $payroundClientStore.connection);
 		balance = $balancesStore.balance.toLocaleString()
-		credit = $balancesStore.credit
+		credit = ($balancesStore.credit - PayroundClient.ACCOUNT_RENT)/PayroundClient.MEGALAMPORT
 
 		address = $payroundClientStore.pubkey.toBase58()
 		pubkey = $payroundClientStore.userId.toBase58()

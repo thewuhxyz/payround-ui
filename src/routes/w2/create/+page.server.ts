@@ -32,7 +32,7 @@ export const actions: Actions = {
 			const userId = await payroundAdmin().createEmailAccountTx();
 			console.log('payround admin', payroundAd?.toBase58());
 
-			const rent = await payroundAdmin(userId).getPubkeyBalance()
+			// const rent = await payroundAdmin(userId).getPubkeyBalance()
 
 			let stripeId;
 
@@ -53,7 +53,7 @@ export const actions: Actions = {
 					email: user.email,
 					nickname: name,
 					stripe_id: stripeId,
-					rent
+					// rent
 				})
 				.select();
 			console.log('some:', some);

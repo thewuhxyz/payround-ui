@@ -28,6 +28,7 @@ export class PayroundClient {
 	static CLOCKWORK_THREAD_SEED = 'thread';
 
 	static MEGALAMPORT = 1000000;
+	static ACCOUNT_RENT = 9159360;
 
 	static CLOCKWORK_THREAD_PROGRAM_ID = new PublicKey(
 		'CLoCKyJ6DXBJqqu2VWx9RLbgnwwR6BMHHuyasVmfMzBh'

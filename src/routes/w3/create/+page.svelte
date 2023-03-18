@@ -46,12 +46,12 @@
 
 			const tx = await $payroundClientStore.createAccountTx('some account 1');
 			console.log('tx:', tx);
-			rent =  await $payroundClientStore.getPubkeyBalance()
+			// rent =  await $payroundClientStore.getPubkeyBalance()
 		}
 		const response = {
 			name,
 			address: publickey,
-			rent
+			// rent
 		};
 
 		const resp = await fetch(`/w3/api/create`, {

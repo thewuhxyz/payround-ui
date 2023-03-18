@@ -42,7 +42,7 @@
 	
 	<li class="my-4">
 		{#each links as link}
-			<a class={` text-primary-100`} href={link.disable ? '#' : link.link}>
+			<a class={` text-primary-100`} href={route == "w3" ? link.disable ? '#' : link.link : link.link}>
 				<ul
 					class={`btn text-white w-full p-4 text-1xl text-center hover:bg-secondary-100 hover:italic hover:text-secondary-500 active:italic active:text-secondary-500`}
 				>
@@ -53,9 +53,9 @@
 	</li>
 	{#if route == "w2"}
 		
-	<div class="p-5 w-full">
+	<div class="w-full">
 		<form action="/w2/logout" method="POST">
-			<button type="submit" class="p-1 bg-red-400">Logout</button>
+			<button type="submit" class="p-4 btn text-white w-full text-1xl text-center hover:bg-secondary-100 hover:italic hover:text-error-500 active:italic active:text-secondary-500">Logout</button>
 		</form>
 	</div>
 	{/if}
