@@ -1,4 +1,5 @@
-import * as anchor from '@project-serum/anchor';
+// import * as anchor from '@project-serum/anchor';
+import {Program, web3, type Provider} from '@project-serum/anchor';
 import idl from '$lib/payround/idl/payround.json';
 import type { Payround } from '$lib/payround/idl/payround';
 import {
@@ -19,9 +20,9 @@ import {
 // import { } from '@clockwork-xyz/sdk';
 import type { ClockworkTrigger, TaskOptions } from './types';
 import { getTransactionsFilterByMint } from '$lib/helpers';
-// import BN from 'bn.js';
+import BN from 'bn.js';
 
-const {BN} = anchor
+// const {BN} = anchor
 
 export class PayroundClient {
 	static PAYROUND_ID = new PublicKey('BQpMmaGZ9wgYvUQGcBarTr3puuDid1W3tUj7Fz3pWUkV');
@@ -36,22 +37,22 @@ export class PayroundClient {
 		'CLoCKyJ6DXBJqqu2VWx9RLbgnwwR6BMHHuyasVmfMzBh'
 	);
 
-	connection: anchor.web3.Connection;
+	connection: web3.Connection;
 	userId: PublicKey;
-	program: anchor.Program<Payround>;
+	program: Program<Payround>;
 
 	constructor(
 		// public program: anchor.Program<Payround>,
-		public provider: anchor.Provider,
+		public provider: Provider,
 		public network: string,
 		userId?: string
 	) {
-		this.program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
+		this.program = new Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
 		this.connection = this.program.provider.connection;
 		this.userId = userId ? new PublicKey(userId) : this.provider.publicKey!;
 	}
 
-	static connect(provider: anchor.Provider, network: string, userId?: string): PayroundClient {
+	static connect(provider: Provider, network: string, userId?: string): PayroundClient {
 		// const program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
 		return new PayroundClient(provider, network, userId);
 		// return new PayroundClient(program, provider, network, userId);
@@ -120,6 +121,7 @@ export class PayroundClient {
 
 	async makeTransferTx(recipient: PublicKey, uiAmount: number): Promise<string> {
 		const amount = new BN(uiAmount * 10 ** 6);
+
 		return await this.program.methods
 			.makeTransfer(amount)
 			.accounts({
