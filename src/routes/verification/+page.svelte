@@ -6,17 +6,6 @@
 
   // export const prerender = false
 
-	$: ({ connected, publicKey, wallet } = $walletStore);
-
-  // $: ({userId, provider} = $payroundClientStore)
-  // $: $payroundClientStore
-  $: publicKey
-
-
-  // console.log("userId:", userId.toBase58())
-  console.log("userId:", publicKey?.toBase58())
-  console.log("provider:", connected)
-
 	// async function login {
 	// 	const message = new SigninMessage({
 	// 		// domain: window.location.host,
@@ -36,8 +25,3 @@
 <p>A verification link has been sent to your email</p>
 <p>Check your email for confirmation</p>
 
-<!-- {$providerStore} -->
-<!-- {userId.toBase58()} -->
-
-{connected}
-{publicKey}

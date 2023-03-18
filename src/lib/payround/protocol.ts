@@ -19,7 +19,9 @@ import {
 // import { } from '@clockwork-xyz/sdk';
 import type { ClockworkTrigger, TaskOptions } from './types';
 import { getTransactionsFilterByMint } from '$lib/helpers';
-import BN from 'bn.js';
+// import BN from 'bn.js';
+
+const {BN} = anchor
 
 export class PayroundClient {
 	static PAYROUND_ID = new PublicKey('BQpMmaGZ9wgYvUQGcBarTr3puuDid1W3tUj7Fz3pWUkV');
@@ -117,8 +119,9 @@ export class PayroundClient {
 	}
 
 	async makeTransferTx(recipient: PublicKey, uiAmount: number): Promise<string> {
+		const amount = new BN(uiAmount * 10 ** 6);
 		return await this.program.methods
-			.makeTransfer(new BN(uiAmount * 10 ** 6))
+			.makeTransfer(amount)
 			.accounts({
 				accountAta: this.usdcAddress,
 				associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
