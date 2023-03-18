@@ -12,28 +12,13 @@ export type Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
           "name": "userId",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "defaultGroup",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "tasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
         },
         {
           "name": "usdcTokenAccount",
@@ -65,10 +50,6 @@ export type Payround = {
         {
           "name": "bump",
           "type": "u8"
-        },
-        {
-          "name": "desc",
-          "type": "string"
         }
       ]
     },
@@ -81,22 +62,7 @@ export type Payround = {
           "isSigner": false
         },
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
           "name": "usdcTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "defaultGroup",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "tasklist",
           "isMut": true,
           "isSigner": false
         },
@@ -107,7 +73,7 @@ export type Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -146,8 +112,13 @@ export type Payround = {
           "isSigner": false
         },
         {
-          "name": "usdcTokenAccount",
+          "name": "userId",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "usdcTokenAccount",
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -182,24 +153,14 @@ export type Payround = {
           "isSigner": true
         },
         {
-          "name": "payroundAccount",
+          "name": "userId",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "taskGroup",
-          "isMut": true,
+          "name": "payroundAccount",
+          "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "tasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
         },
         {
           "name": "recipient",
@@ -208,7 +169,7 @@ export type Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -223,53 +184,10 @@ export type Payround = {
           "type": "u64"
         },
         {
-          "name": "label",
-          "type": "string"
-        },
-        {
-          "name": "desc",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "createTaskGroup",
-      "accounts": [
-        {
-          "name": "taskGroup",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "payroundAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "desc",
-          "type": "string"
+          "name": "trigger",
+          "type": {
+            "defined": "ClockworkTrigger"
+          }
         }
       ]
     },
@@ -278,6 +196,16 @@ export type Payround = {
       "accounts": [
         {
           "name": "task",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "userId",
           "isMut": false,
           "isSigner": false
         },
@@ -302,7 +230,7 @@ export type Payround = {
           "isSigner": false
         },
         {
-          "name": "tokenProgram",
+          "name": "tokenMint",
           "isMut": false,
           "isSigner": false
         },
@@ -313,6 +241,11 @@ export type Payround = {
         },
         {
           "name": "clockworkProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -338,105 +271,37 @@ export type Payround = {
       }
     },
     {
-      "name": "processTaskTestIx",
-      "accounts": [
-        {
-          "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "threadAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "accountAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "recipientAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "startTask",
       "accounts": [
         {
-          "name": "systemProgram",
+          "name": "clockworkProgram",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "clockworkProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Clockwork Program (Thread Program)"
-          ]
-        },
-        {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isSigner": false
         },
         {
           "name": "accountAta",
@@ -454,7 +319,7 @@ export type Payround = {
           "isSigner": false
         },
         {
-          "name": "tokenProgram",
+          "name": "tokenMint",
           "isMut": false,
           "isSigner": false
         },
@@ -464,19 +329,25 @@ export type Payround = {
           "isSigner": false
         },
         {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "schedule",
-          "type": "string"
-        },
-        {
-          "name": "skippable",
-          "type": "bool"
+          "name": "amount",
+          "type": "u64"
         }
       ]
     },
@@ -498,32 +369,23 @@ export type Payround = {
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": []
@@ -534,10 +396,7 @@ export type Payround = {
         {
           "name": "clockworkProgram",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Clockwork Program (Thread Program)"
-          ]
+          "isSigner": false
         },
         {
           "name": "authority",
@@ -546,80 +405,23 @@ export type Payround = {
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
         },
         {
-          "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "endTask",
-      "accounts": [
-        {
-          "name": "clockworkProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Clockwork Program (Thread Program)"
-          ]
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "task",
+          "name": "userId",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
-        },
-        {
-          "name": "thread",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
-        },
-        {
           "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": []
@@ -637,7 +439,7 @@ export type Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -646,57 +448,30 @@ export type Payround = {
           "isSigner": false
         },
         {
-          "name": "taskGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payTo",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Who's paying"
-          ]
-        },
-        {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": []
     },
     {
-      "name": "updateTaskSchedule",
+      "name": "updateTaskDetails",
       "accounts": [
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
         {
           "name": "clockworkProgram",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Clockwork Program (Thread Program)"
-          ]
+          "isSigner": false
         },
         {
           "name": "authority",
@@ -705,87 +480,23 @@ export type Payround = {
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
         },
         {
-          "name": "payroundAccount",
+          "name": "userId",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
-        },
-        {
-          "name": "accountAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "recipientAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "schedule",
-          "type": "string"
-        },
-        {
-          "name": "skippable",
-          "type": "bool"
-        }
-      ]
-    },
-    {
-      "name": "updateTaskAmount",
-      "accounts": [
-        {
-          "name": "task",
-          "isMut": true,
           "isSigner": false
         },
         {
           "name": "payroundAccount",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
         },
         {
           "name": "systemProgram",
@@ -795,8 +506,10 @@ export type Payround = {
       ],
       "args": [
         {
-          "name": "amount",
-          "type": "u64"
+          "name": "taskOptions",
+          "type": {
+            "defined": "TaskOptions"
+          }
         }
       ]
     },
@@ -813,37 +526,28 @@ export type Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payTo",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isSigner": false
         }
       ],
       "args": [
@@ -858,7 +562,7 @@ export type Payround = {
       "accounts": [
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -867,28 +571,19 @@ export type Payround = {
           "isSigner": false
         },
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
-        },
-        {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isSigner": false
         },
         {
           "name": "systemProgram",
@@ -904,12 +599,17 @@ export type Payround = {
       ]
     },
     {
-      "name": "changeTaskGroup",
+      "name": "makeTransfer",
       "accounts": [
         {
-          "name": "task",
+          "name": "authority",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
@@ -917,39 +617,34 @@ export type Payround = {
           "isSigner": false
         },
         {
-          "name": "currentTaskGroup",
+          "name": "accountAta",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "newTaskGroup",
-          "isMut": true,
+          "name": "recipient",
+          "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "currentGroupTasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "newGroupTasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
         },
         {
           "name": "recipientAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMint",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "authority",
+          "name": "tokenProgram",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "systemProgram",
@@ -957,7 +652,12 @@ export type Payround = {
           "isSigner": false
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -981,16 +681,6 @@ export type Payround = {
           {
             "name": "usdcTokenAccount",
             "type": "publicKey"
-          },
-          {
-            "name": "taskGroups",
-            "type": {
-              "vec": "publicKey"
-            }
-          },
-          {
-            "name": "groupCount",
-            "type": "u8"
           },
           {
             "name": "email",
@@ -1041,12 +731,20 @@ export type Payround = {
             "type": "u64"
           },
           {
-            "name": "label",
-            "type": "string"
+            "name": "trigger",
+            "type": {
+              "defined": "ClockworkTrigger"
+            }
           },
           {
-            "name": "desc",
-            "type": "string"
+            "name": "status",
+            "type": {
+              "defined": "TaskStatus"
+            }
+          },
+          {
+            "name": "label",
+            "type": "bytes"
           }
         ]
       }
@@ -1069,12 +767,12 @@ export type Payround = {
             "type": "publicKey"
           },
           {
-            "name": "desc",
-            "type": "string"
-          },
-          {
             "name": "tasklist",
             "type": "publicKey"
+          },
+          {
+            "name": "desc",
+            "type": "string"
           }
         ]
       }
@@ -1086,10 +784,6 @@ export type Payround = {
         "fields": [
           {
             "name": "taskGroup",
-            "type": "publicKey"
-          },
-          {
-            "name": "lastTask",
             "type": "publicKey"
           },
           {
@@ -1115,21 +809,143 @@ export type Payround = {
   ],
   "types": [
     {
+      "name": "TaskOptions",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "scheduleOptions",
+            "type": {
+              "option": {
+                "defined": "ClockworkTrigger"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClockworkTrigger",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Account",
+            "fields": [
+              {
+                "name": "address",
+                "docs": [
+                  "The address of the account to monitor."
+                ],
+                "type": "publicKey"
+              },
+              {
+                "name": "offset",
+                "docs": [
+                  "The byte offset of the account data to monitor."
+                ],
+                "type": "u64"
+              },
+              {
+                "name": "size",
+                "docs": [
+                  "The size of the byte slice to monitor (must be less than 1kb)"
+                ],
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "Cron",
+            "fields": [
+              {
+                "name": "schedule",
+                "docs": [
+                  "The schedule in cron syntax. Value must be parsable by the `clockwork_cron` package."
+                ],
+                "type": "string"
+              },
+              {
+                "name": "skippable",
+                "docs": [
+                  "Boolean value indicating whether triggering moments may be skipped if they are missed (e.g. due to network downtime).",
+                  "If false, any \"missed\" triggering moments will simply be executed as soon as the network comes back online."
+                ],
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "Now"
+          },
+          {
+            "name": "Slot",
+            "fields": [
+              {
+                "name": "slot",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "Epoch",
+            "fields": [
+              {
+                "name": "epoch",
+                "type": "u64"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "TaskStatus",
       "type": {
         "kind": "enum",
         "variants": [
           {
-            "name": "STARTED"
+            "name": "Notstarted"
           },
           {
-            "name": "PAUSED"
+            "name": "Started"
           },
           {
-            "name": "ENDED"
+            "name": "Paused"
+          },
+          {
+            "name": "Ended"
           }
         ]
       }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NotAdmin",
+      "msg": "Admin Signer Only"
+    },
+    {
+      "code": 6001,
+      "name": "MaxDescLenghtExceeded",
+      "msg": "Desc characters greater than max lenght"
+    },
+    {
+      "code": 6002,
+      "name": "KeysDontMatch",
+      "msg": "The provided keys do not match"
+    },
+    {
+      "code": 6003,
+      "name": "MaxLimitReached",
+      "msg": "Limit reached. Cannot add task or group"
     }
   ]
 };
@@ -1148,28 +964,13 @@ export const IDL: Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
           "name": "userId",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "defaultGroup",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "tasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
         },
         {
           "name": "usdcTokenAccount",
@@ -1201,10 +1002,6 @@ export const IDL: Payround = {
         {
           "name": "bump",
           "type": "u8"
-        },
-        {
-          "name": "desc",
-          "type": "string"
         }
       ]
     },
@@ -1217,22 +1014,7 @@ export const IDL: Payround = {
           "isSigner": false
         },
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
           "name": "usdcTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "defaultGroup",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "tasklist",
           "isMut": true,
           "isSigner": false
         },
@@ -1243,7 +1025,7 @@ export const IDL: Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -1282,8 +1064,13 @@ export const IDL: Payround = {
           "isSigner": false
         },
         {
-          "name": "usdcTokenAccount",
+          "name": "userId",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "usdcTokenAccount",
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -1318,24 +1105,14 @@ export const IDL: Payround = {
           "isSigner": true
         },
         {
-          "name": "payroundAccount",
+          "name": "userId",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "taskGroup",
-          "isMut": true,
+          "name": "payroundAccount",
+          "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "tasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
         },
         {
           "name": "recipient",
@@ -1344,7 +1121,7 @@ export const IDL: Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -1359,53 +1136,10 @@ export const IDL: Payround = {
           "type": "u64"
         },
         {
-          "name": "label",
-          "type": "string"
-        },
-        {
-          "name": "desc",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "createTaskGroup",
-      "accounts": [
-        {
-          "name": "taskGroup",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "payroundAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "desc",
-          "type": "string"
+          "name": "trigger",
+          "type": {
+            "defined": "ClockworkTrigger"
+          }
         }
       ]
     },
@@ -1414,6 +1148,16 @@ export const IDL: Payround = {
       "accounts": [
         {
           "name": "task",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "userId",
           "isMut": false,
           "isSigner": false
         },
@@ -1438,7 +1182,7 @@ export const IDL: Payround = {
           "isSigner": false
         },
         {
-          "name": "tokenProgram",
+          "name": "tokenMint",
           "isMut": false,
           "isSigner": false
         },
@@ -1449,6 +1193,11 @@ export const IDL: Payround = {
         },
         {
           "name": "clockworkProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -1474,105 +1223,37 @@ export const IDL: Payround = {
       }
     },
     {
-      "name": "processTaskTestIx",
-      "accounts": [
-        {
-          "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "threadAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "accountAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "recipientAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "startTask",
       "accounts": [
         {
-          "name": "systemProgram",
+          "name": "clockworkProgram",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "clockworkProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Clockwork Program (Thread Program)"
-          ]
-        },
-        {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isSigner": false
         },
         {
           "name": "accountAta",
@@ -1590,7 +1271,7 @@ export const IDL: Payround = {
           "isSigner": false
         },
         {
-          "name": "tokenProgram",
+          "name": "tokenMint",
           "isMut": false,
           "isSigner": false
         },
@@ -1600,19 +1281,25 @@ export const IDL: Payround = {
           "isSigner": false
         },
         {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "schedule",
-          "type": "string"
-        },
-        {
-          "name": "skippable",
-          "type": "bool"
+          "name": "amount",
+          "type": "u64"
         }
       ]
     },
@@ -1634,32 +1321,23 @@ export const IDL: Payround = {
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": []
@@ -1670,10 +1348,7 @@ export const IDL: Payround = {
         {
           "name": "clockworkProgram",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Clockwork Program (Thread Program)"
-          ]
+          "isSigner": false
         },
         {
           "name": "authority",
@@ -1682,80 +1357,23 @@ export const IDL: Payround = {
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
         },
         {
-          "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "endTask",
-      "accounts": [
-        {
-          "name": "clockworkProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Clockwork Program (Thread Program)"
-          ]
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "task",
+          "name": "userId",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
-        },
-        {
-          "name": "thread",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
-        },
-        {
           "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": []
@@ -1773,7 +1391,7 @@ export const IDL: Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -1782,57 +1400,30 @@ export const IDL: Payround = {
           "isSigner": false
         },
         {
-          "name": "taskGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payTo",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Who's paying"
-          ]
-        },
-        {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": []
     },
     {
-      "name": "updateTaskSchedule",
+      "name": "updateTaskDetails",
       "accounts": [
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
         {
           "name": "clockworkProgram",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Clockwork Program (Thread Program)"
-          ]
+          "isSigner": false
         },
         {
           "name": "authority",
@@ -1841,87 +1432,23 @@ export const IDL: Payround = {
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
         },
         {
-          "name": "payroundAccount",
+          "name": "userId",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
-        },
-        {
-          "name": "accountAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "recipientAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "schedule",
-          "type": "string"
-        },
-        {
-          "name": "skippable",
-          "type": "bool"
-        }
-      ]
-    },
-    {
-      "name": "updateTaskAmount",
-      "accounts": [
-        {
-          "name": "task",
-          "isMut": true,
           "isSigner": false
         },
         {
           "name": "payroundAccount",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
         },
         {
           "name": "systemProgram",
@@ -1931,8 +1458,10 @@ export const IDL: Payround = {
       ],
       "args": [
         {
-          "name": "amount",
-          "type": "u64"
+          "name": "taskOptions",
+          "type": {
+            "defined": "TaskOptions"
+          }
         }
       ]
     },
@@ -1949,37 +1478,28 @@ export const IDL: Payround = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
           "name": "task",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payTo",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Who's paying"
-          ]
+          "isSigner": false
         },
         {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isSigner": false
         }
       ],
       "args": [
@@ -1994,7 +1514,7 @@ export const IDL: Payround = {
       "accounts": [
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -2003,28 +1523,19 @@ export const IDL: Payround = {
           "isSigner": false
         },
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Who's paying"
-          ]
-        },
-        {
           "name": "thread",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Address to assign to the newly created Thread"
-          ]
+          "isSigner": false
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Thread Admin, not signer but it will be use to pseudo-sign by the driver program"
-          ]
+          "isSigner": false
         },
         {
           "name": "systemProgram",
@@ -2040,12 +1551,17 @@ export const IDL: Payround = {
       ]
     },
     {
-      "name": "changeTaskGroup",
+      "name": "makeTransfer",
       "accounts": [
         {
-          "name": "task",
+          "name": "authority",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "userId",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payroundAccount",
@@ -2053,39 +1569,34 @@ export const IDL: Payround = {
           "isSigner": false
         },
         {
-          "name": "currentTaskGroup",
+          "name": "accountAta",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "newTaskGroup",
-          "isMut": true,
+          "name": "recipient",
+          "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "currentGroupTasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "newGroupTasklist",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
         },
         {
           "name": "recipientAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMint",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "authority",
+          "name": "tokenProgram",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "systemProgram",
@@ -2093,7 +1604,12 @@ export const IDL: Payround = {
           "isSigner": false
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -2117,16 +1633,6 @@ export const IDL: Payround = {
           {
             "name": "usdcTokenAccount",
             "type": "publicKey"
-          },
-          {
-            "name": "taskGroups",
-            "type": {
-              "vec": "publicKey"
-            }
-          },
-          {
-            "name": "groupCount",
-            "type": "u8"
           },
           {
             "name": "email",
@@ -2177,12 +1683,20 @@ export const IDL: Payround = {
             "type": "u64"
           },
           {
-            "name": "label",
-            "type": "string"
+            "name": "trigger",
+            "type": {
+              "defined": "ClockworkTrigger"
+            }
           },
           {
-            "name": "desc",
-            "type": "string"
+            "name": "status",
+            "type": {
+              "defined": "TaskStatus"
+            }
+          },
+          {
+            "name": "label",
+            "type": "bytes"
           }
         ]
       }
@@ -2205,12 +1719,12 @@ export const IDL: Payround = {
             "type": "publicKey"
           },
           {
-            "name": "desc",
-            "type": "string"
-          },
-          {
             "name": "tasklist",
             "type": "publicKey"
+          },
+          {
+            "name": "desc",
+            "type": "string"
           }
         ]
       }
@@ -2222,10 +1736,6 @@ export const IDL: Payround = {
         "fields": [
           {
             "name": "taskGroup",
-            "type": "publicKey"
-          },
-          {
-            "name": "lastTask",
             "type": "publicKey"
           },
           {
@@ -2251,21 +1761,143 @@ export const IDL: Payround = {
   ],
   "types": [
     {
+      "name": "TaskOptions",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "scheduleOptions",
+            "type": {
+              "option": {
+                "defined": "ClockworkTrigger"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClockworkTrigger",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Account",
+            "fields": [
+              {
+                "name": "address",
+                "docs": [
+                  "The address of the account to monitor."
+                ],
+                "type": "publicKey"
+              },
+              {
+                "name": "offset",
+                "docs": [
+                  "The byte offset of the account data to monitor."
+                ],
+                "type": "u64"
+              },
+              {
+                "name": "size",
+                "docs": [
+                  "The size of the byte slice to monitor (must be less than 1kb)"
+                ],
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "Cron",
+            "fields": [
+              {
+                "name": "schedule",
+                "docs": [
+                  "The schedule in cron syntax. Value must be parsable by the `clockwork_cron` package."
+                ],
+                "type": "string"
+              },
+              {
+                "name": "skippable",
+                "docs": [
+                  "Boolean value indicating whether triggering moments may be skipped if they are missed (e.g. due to network downtime).",
+                  "If false, any \"missed\" triggering moments will simply be executed as soon as the network comes back online."
+                ],
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "Now"
+          },
+          {
+            "name": "Slot",
+            "fields": [
+              {
+                "name": "slot",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "Epoch",
+            "fields": [
+              {
+                "name": "epoch",
+                "type": "u64"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "TaskStatus",
       "type": {
         "kind": "enum",
         "variants": [
           {
-            "name": "STARTED"
+            "name": "Notstarted"
           },
           {
-            "name": "PAUSED"
+            "name": "Started"
           },
           {
-            "name": "ENDED"
+            "name": "Paused"
+          },
+          {
+            "name": "Ended"
           }
         ]
       }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NotAdmin",
+      "msg": "Admin Signer Only"
+    },
+    {
+      "code": 6001,
+      "name": "MaxDescLenghtExceeded",
+      "msg": "Desc characters greater than max lenght"
+    },
+    {
+      "code": 6002,
+      "name": "KeysDontMatch",
+      "msg": "The provided keys do not match"
+    },
+    {
+      "code": 6003,
+      "name": "MaxLimitReached",
+      "msg": "Limit reached. Cannot add task or group"
     }
   ]
 };

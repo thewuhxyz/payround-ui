@@ -1,36 +1,60 @@
-import * as anchor from "@project-serum/anchor"
-import idl from "$lib/idl/payround.json"
-import type {Payround} from "$lib/idl/payround"
-import { Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from "@solana/web3.js"
-import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import {CLOCKWORK_THREAD_PROGRAM_ID} from "@clockwork-xyz/sdk"
+import * as anchor from '@project-serum/anchor';
+import idl from '$lib/payround/idl/payround.json';
+import type { Payround } from '$lib/payround/idl/payround';
+import {
+	Keypair,
+	LAMPORTS_PER_SOL,
+	PublicKey,
+	SystemProgram,
+	SYSVAR_RENT_PUBKEY,
+	Transaction
+} from '@solana/web3.js';
+import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
+import {
+	ASSOCIATED_TOKEN_PROGRAM_ID,
+	getAccount,
+	getAssociatedTokenAddressSync,
+	TOKEN_PROGRAM_ID
+} from '@solana/spl-token';
+// import { } from '@clockwork-xyz/sdk';
+import type { ClockworkTrigger, TaskOptions } from './types';
+import { getTransactionsFilterByMint } from '$lib/helpers';
+// import BN from 'bn.js';
+
+const {BN} = anchor
 
 export class PayroundClient {
 	static PAYROUND_ID = new PublicKey('BQpMmaGZ9wgYvUQGcBarTr3puuDid1W3tUj7Fz3pWUkV');
 	static PAYROUND_SEED = 'payround';
 	static MOCK_USDC_MINT = new PublicKey('48JBvpStoDYJmQBFuENcCm6dBomPC2z9r4SfJJa9ui9H');
+	static CLOCKWORK_THREAD_SEED = 'thread';
+
+	static MEGALAMPORT = 1000000;
+	static ACCOUNT_RENT = 9159360;
+
+	static CLOCKWORK_THREAD_PROGRAM_ID = new PublicKey(
+		'CLoCKyJ6DXBJqqu2VWx9RLbgnwwR6BMHHuyasVmfMzBh'
+	);
 
 	connection: anchor.web3.Connection;
 	userId: PublicKey;
+	program: anchor.Program<Payround>;
 
 	constructor(
-		public program: anchor.Program<Payround>,
+		// public program: anchor.Program<Payround>,
 		public provider: anchor.Provider,
 		public network: string,
 		userId?: string
 	) {
-		this.connection = program.provider.connection;
+		this.program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
+		this.connection = this.program.provider.connection;
 		this.userId = userId ? new PublicKey(userId) : this.provider.publicKey!;
 	}
 
-	static async connect(
-		provider: anchor.Provider,
-		network: string,
-		userId?: string
-	): Promise<PayroundClient> {
-		const program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
-		return new PayroundClient(program, provider, network, userId);
+	static connect(provider: anchor.Provider, network: string, userId?: string): PayroundClient {
+		// const program = new anchor.Program<Payround>(idl as any, PayroundClient.PAYROUND_ID, provider);
+		return new PayroundClient(provider, network, userId);
+		// return new PayroundClient(program, provider, network, userId);
 	}
 
 	static getTokenAddress(mint: PublicKey, owner: PublicKey, allowPda?: boolean) {
@@ -38,143 +62,194 @@ export class PayroundClient {
 	}
 
 	async createAccountTx(desc: string): Promise<string> {
-		const group = Keypair.generate();
-		console.log('group key:', group.publicKey.toBase58());
-		const tasklist = Keypair.generate();
-		console.log('tasklist key:', tasklist.publicKey.toBase58());
+		// const group = Keypair.generate();
+		// console.log('group key:', group.publicKey.toBase58());
+		// const tasklist = Keypair.generate();
+		// console.log('tasklist key:', tasklist.publicKey.toBase58());
 
 		const tx = await this.program.methods
 			.createDegenAccount(this.bump, desc)
 			.accounts({
 				associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 				authority: this.provider.publicKey,
-				payer: this.provider.publicKey,
-				defaultGroup: group.publicKey,
+				// defaultGroup: group.publicKey,
 				payroundAccount: this.pubkey,
 				systemProgram: SystemProgram.programId,
-				tasklist: tasklist.publicKey,
+				// tasklist: tasklist.publicKey,
 				tokenMint: PayroundClient.MOCK_USDC_MINT,
 				tokenProgram: TOKEN_PROGRAM_ID,
 				usdcTokenAccount: this.usdcAddress
 			})
-			.preInstructions([await this.program.account.tasklist.createInstruction(tasklist)])
-			.signers([tasklist, group])
+			// .preInstructions([await this.program.account.tasklist.createInstruction(tasklist)])
+			// .signers([tasklist, group])
 			.rpc();
 
 		return tx;
 	}
 
-	async createEmailAccountTx(desc: string): Promise<string> {
+	async createEmailAccountTx(): Promise<string> {
+		console.log('prov:', this.provider.publicKey?.toBase58());
+
 		const userId = Keypair.generate().publicKey;
 		console.log('userId:', userId.toBase58());
-		const group = Keypair.generate();
-		console.log('group key:', group.publicKey.toBase58());
-		const tasklist = Keypair.generate();
-		console.log('tasklist key:', tasklist.publicKey.toBase58());
+		// const group = Keypair.generate();
+		// console.log('group key:', group.publicKey.toBase58());
+		// const tasklist = Keypair.generate();
+		// console.log('tasklist key:', tasklist.publicKey.toBase58());
 		const tx = await this.program.methods
-			.createEmailAccount(this.bump, desc)
+			.createEmailAccount(this._pda(userId)[1])
 			.accounts({
 				associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 				authority: this.provider.publicKey,
-				defaultGroup: group.publicKey,
-				emailAccount: this.pubkey,
-				payer: this.provider.publicKey,
+				// defaultGroup: group.publicKey,
+				emailAccount: this._pda(userId)[0],
 				systemProgram: SystemProgram.programId,
-				tasklist: tasklist.publicKey,
+				// tasklist: tasklist.publicKey,
 				tokenMint: PayroundClient.MOCK_USDC_MINT,
 				tokenProgram: TOKEN_PROGRAM_ID,
-				usdcTokenAccount: this.usdcAddress,
+				usdcTokenAccount: this.getUsdcAddressFor(this._pda(userId)[0]),
 				userId: userId
 			})
-			.preInstructions([await this.program.account.tasklist.createInstruction(tasklist)])
-			.signers([tasklist, group])
-			.rpc();
+			// .preInstructions([await this.program.account.tasklist.createInstruction(tasklist)])
+			// .signers([tasklist, group])
+			.rpc({ skipPreflight: true });
 
 		console.log('account created. tx:', tx);
 		return userId.toBase58();
 	}
 
-	async createTaskTx(
-		recipient: PublicKey,
-		amount: number,
-		label: string,
-		desc: string,
-		task: PublicKey,
-		group: PublicKey
-	): Promise<string> {
-		const groupAccount = await this.fetchTaskGroupAccount(group);
-		const tx = await this.program.methods
-			.createTask(new anchor.BN(amount), label, desc)
-			.accounts({
-				authority: this.provider.publicKey,
-				payer: this.provider.publicKey,
-				payroundAccount: this.pubkey,
-				recipient: recipient,
-				systemProgram: SystemProgram.programId,
-				task: task,
-				taskGroup: group,
-				tasklist: groupAccount.tasklist
-			})
-			.rpc();
-
-		return tx;
-	}
-
-	async createGroupTx(desc: string): Promise<string> {
-		const group = Keypair.generate();
-		console.log('group key:', group.publicKey.toBase58());
-		const tasklist = Keypair.generate();
-		console.log('tasklist key:', tasklist.publicKey.toBase58());
-
+	async makeTransferTx(recipient: PublicKey, uiAmount: number): Promise<string> {
+		const amount = new BN(uiAmount * 10 ** 6);
 		return await this.program.methods
-			.createTaskGroup(desc)
-			.accounts({
-				authority: this.provider.publicKey,
-				payer: this.provider.publicKey,
-				payroundAccount: this.pubkey,
-				systemProgram: SystemProgram.programId,
-				taskGroup: group.publicKey,
-				tasklist: tasklist.publicKey
-			})
-			.preInstructions([await this.program.account.tasklist.createInstruction(tasklist)])
-			.signers([tasklist, group])
-			.rpc();
-	}
-
-	async changeTaskGroupTx(taskKey: PublicKey, newGroupkey: PublicKey): Promise<string> {
-		const task = await this.fetchTaskAccount(taskKey);
-		const currentTaskGroup = await this.fetchTaskGroupAccount(task.taskGroup);
-		const newGroupAccount = await this.fetchTaskGroupAccount(newGroupkey);
-		return await this.program.methods
-			.changeTaskGroup()
-			.accounts({
-				authority: this.provider.publicKey,
-				currentGroupTasklist: currentTaskGroup.tasklist,
-				currentTaskGroup: currentTaskGroup.pubkey,
-				newGroupTasklist: newGroupAccount.tasklist,
-				newTaskGroup: newGroupAccount.pubkey,
-				payer: this.provider.publicKey,
-				payroundAccount: this.pubkey,
-				recipientAta: this.pubkey,
-				systemProgram: SystemProgram.programId,
-				task: taskKey
-			})
-			.rpc();
-	}
-
-	async startTaskTx(task: PublicKey, schedule: string, skippable: boolean): Promise<string> {
-		const taskAccount = await this.fetchTaskAccount(task);
-		console.log('recipient:', taskAccount.recipient.toBase58());
-		console.log('recipient token address:', taskAccount.recipient.toBase58());
-
-		return await this.program.methods
-			.startTask(schedule, skippable)
+			.makeTransfer(amount)
 			.accounts({
 				accountAta: this.usdcAddress,
 				associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 				authority: this.provider.publicKey,
-				clockworkProgram: CLOCKWORK_THREAD_PROGRAM_ID,
-				payer: this.provider.publicKey,
+				payroundAccount: this.pubkey,
+				recipient: recipient,
+				recipientAta: this.getUsdcAddressFor(recipient),
+				systemProgram: SystemProgram.programId,
+				tokenMint: PayroundClient.MOCK_USDC_MINT,
+				tokenProgram: TOKEN_PROGRAM_ID,
+				userId: this.userId
+			})
+			.rpc();
+	}
+
+	async createTaskTx(
+		recipient: PublicKey,
+		uiAmount: number,
+		trigger: ClockworkTrigger
+	): Promise<string> {
+		// const groupAccount = await this.fetchTaskGroupAccount(group);
+		const task = Keypair.generate();
+		const amount = uiAmount * 10 ** 6; // mock usdc decimals
+		const tx = await this.program.methods
+			.createTask(new BN(amount), trigger)
+			.accounts({
+				authority: this.provider.publicKey,
+				payroundAccount: this.pubkey,
+				recipient: recipient,
+				systemProgram: SystemProgram.programId,
+				task: task.publicKey,
+				// taskGroup: group,
+				// tasklist: groupAccount.tasklist,
+				userId: this.userId
+			})
+			.signers([task])
+			.rpc();
+
+		console.log('tx:', tx);
+
+		return task.publicKey.toBase58();
+	}
+	// async createTaskTx(
+	// 	recipient: PublicKey,
+	// 	uiAmount: number,
+	// 	trigger: ClockworkTrigger
+	// 	// task: PublicKey,
+	// 	// group: PublicKey
+	// ): Promise<string> {
+	// 	// const groupAccount = await this.fetchTaskGroupAccount(group);
+	// 	const task = Keypair.generate();
+	// 	const amount = uiAmount * 10 ** 6; // mock usdc decimals
+	// 	const tx = await this.program.methods
+	// 		.createTask(new (amount), amount, trigger)
+	// 		.accounts({
+	// 			authority: this.provider.publicKey,
+	// 			payroundAccount: this.pubkey,
+	// 			recipient: recipient,
+	// 			systemProgram: SystemProgram.programId,
+	// 			task: task.publicKey,
+	// 			// taskGroup: group,
+	// 			// tasklist: groupAccount.tasklist,
+	// 			userId: this.userId
+	// 		})
+	// 		.signers([task])
+	// 		.rpc();
+
+	// 	console.log('tx:', tx);
+
+	// 	return task.publicKey.toBase58();
+	// }
+
+	// async createGroupTx(desc: string): Promise<string> {
+	// 	const group = Keypair.generate();
+	// 	console.log('group key:', group.publicKey.toBase58());
+	// 	const tasklist = Keypair.generate();
+	// 	console.log('tasklist key:', tasklist.publicKey.toBase58());
+
+	// 	return await this.program.methods
+	// 		.createTaskGroup(desc)
+	// 		.accounts({
+	// 			authority: this.provider.publicKey,
+	// 			payroundAccount: this.pubkey,
+	// 			systemProgram: SystemProgram.programId,
+	// 			taskGroup: group.publicKey,
+	// 			tasklist: tasklist.publicKey,
+	// 			userId: this.userId
+	// 		})
+	// 		.preInstructions([await this.program.account.tasklist.createInstruction(tasklist)])
+	// 		.signers([tasklist, group])
+	// 		.rpc();
+	// }
+
+	// async changeTaskGroupTx(taskKey: PublicKey, newGroupkey: PublicKey): Promise<string> {
+	// 	const task = await this.fetchTaskAccount(taskKey);
+	// 	const currentTaskGroup = await this.fetchTaskGroupAccount(task.taskGroup);
+	// 	const newGroupAccount = await this.fetchTaskGroupAccount(newGroupkey);
+	// 	return await this.program.methods
+	// 		.changeTaskGroup()
+	// 		.accounts({
+	// 			authority: this.provider.publicKey,
+	// 			currentGroupTasklist: currentTaskGroup.tasklist,
+	// 			currentTaskGroup: currentTaskGroup.pubkey,
+	// 			newGroupTasklist: newGroupAccount.tasklist,
+	// 			newTaskGroup: newGroupAccount.pubkey,
+	// 			payroundAccount: this.pubkey,
+	// 			task: taskKey,
+	// 			userId: this.userId
+	// 		})
+	// 		.rpc();
+	// }
+
+	async startTaskTx(task: PublicKey, amount: number): Promise<string> {
+		const taskAccount = await this.fetchTaskAccount(task);
+		console.log('recipient:', taskAccount.recipient.toBase58());
+		console.log(
+			'recipient token address:',
+			this.getUsdcAddressFor(taskAccount.recipient).toBase58()
+		);
+		console.log('task account thread address:', taskAccount.thread.toBase58());
+
+		return await this.program.methods
+			.startTask(new BN(amount * LAMPORTS_PER_SOL))
+			.accounts({
+				accountAta: this.usdcAddress,
+				associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+				authority: this.provider.publicKey,
+				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
 				payroundAccount: this.pubkey,
 				recipient: taskAccount.recipient,
 				recipientAta: this.getUsdcAddressFor(taskAccount.recipient),
@@ -182,85 +257,87 @@ export class PayroundClient {
 				systemProgram: SystemProgram.programId,
 				task: task,
 				thread: taskAccount.thread,
-				tokenProgram: TOKEN_PROGRAM_ID
+				tokenProgram: TOKEN_PROGRAM_ID,
+				tokenMint: PayroundClient.MOCK_USDC_MINT,
+				userId: this.userId
 			})
 			.rpc();
 	}
 
-  async pauseTaskTx(task:PublicKey) {
-    const taskAccount = await this.fetchTaskAccount(task);
+	async pauseTaskTx(task: PublicKey) {
+		const taskAccount = await this.fetchTaskAccount(task);
 		return await this.program.methods
 			.pauseTask()
 			.accounts({
 				authority: this.provider.publicKey,
-				clockworkProgram: CLOCKWORK_THREAD_PROGRAM_ID,
-				payer: this.provider.publicKey,
+				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
 				payroundAccount: this.pubkey,
 				task: taskAccount.pubkey,
 				thread: taskAccount.thread,
+				userId: this.userId
 			})
 			.rpc();
-  }
-  
-  async resumeTaskTx(task:PublicKey) {
-    const taskAccount = await this.fetchTaskAccount(task);
+	}
+
+	async resumeTaskTx(task: PublicKey) {
+		const taskAccount = await this.fetchTaskAccount(task);
 		return await this.program.methods
 			.resumeTask()
 			.accounts({
 				authority: this.provider.publicKey,
-				clockworkProgram: CLOCKWORK_THREAD_PROGRAM_ID,
-				payer: this.provider.publicKey,
+				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
 				payroundAccount: this.pubkey,
 				task: taskAccount.pubkey,
 				thread: taskAccount.thread,
-			})
-			.rpc();
-  }
-
-	async endTaskTx(task: PublicKey): Promise<string> {
-		const taskAccount = await this.fetchTaskAccount(task);
-		return await this.program.methods
-			.endTask()
-			.accounts({
-				authority: this.provider.publicKey,
-				clockworkProgram: CLOCKWORK_THREAD_PROGRAM_ID,
-				payer: this.provider.publicKey,
-				payroundAccount: this.pubkey,
-				task: taskAccount.pubkey,
-				thread: taskAccount.thread,
+				userId: this.userId
 			})
 			.rpc();
 	}
-	
-  async deleteTaskTx(task: PublicKey): Promise<string> {
+
+	// async endTaskTx(task: PublicKey): Promise<string> {
+	// 	const taskAccount = await this.fetchTaskAccount(task);
+	// 	return await this.program.methods
+	// 		.endTask()
+	// 		.accounts({
+	// 			authority: this.provider.publicKey,
+	// 			clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
+	// 			payroundAccount: this.pubkey,
+	// 			task: taskAccount.pubkey,
+	// 			thread: taskAccount.thread,
+	// 			userId: this.userId
+	// 		})
+	// 		.rpc();
+	// }
+
+	async deleteTaskTx(task: PublicKey): Promise<string> {
 		const taskAccount = await this.fetchTaskAccount(task);
-		const taskGroup = await this.fetchTaskGroupAccount(taskAccount.taskGroup);
+		// const taskGroup = await this.fetchTaskGroupAccount(taskAccount.taskGroup);
 		return await this.program.methods
 			.deleteTask()
 			.accounts({
 				authority: this.provider.publicKey,
-				clockworkProgram: CLOCKWORK_THREAD_PROGRAM_ID,
+				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
 				payroundAccount: this.pubkey,
-				task: taskAccount.pubkey,
+				task: task,
 				thread: taskAccount.thread,
-        payTo: this.provider.publicKey,
-        taskGroup: taskGroup.pubkey,
-        tasklist: taskGroup.tasklist
+				// taskGroup: taskGroup.pubkey,
+				// tasklist: taskGroup.tasklist,
+				userId: this.userId
 			})
-			.rpc();
+			.rpc({ skipPreflight: true });
 	}
 
 	async creditTaskTx(task: PublicKey, amount: number): Promise<string> {
 		const taskAccount = await this.fetchTaskAccount(task);
 		return await this.program.methods
-			.creditTask(new anchor.BN(amount))
+			.creditTask(new BN(amount * PayroundClient.MEGALAMPORT))
 			.accounts({
 				authority: this.provider.publicKey,
-				payer: this.provider.publicKey,
 				payroundAccount: this.pubkey,
 				systemProgram: SystemProgram.programId,
 				task: taskAccount.pubkey,
-				thread: taskAccount.thread
+				thread: taskAccount.thread,
+				userId: this.userId
 			})
 			.rpc();
 	}
@@ -268,48 +345,35 @@ export class PayroundClient {
 	async withdrawTaskCreditTx(taskKey: PublicKey, amount: number) {
 		const task = await this.fetchTaskAccount(taskKey);
 		return await this.program.methods
-			.withdrawTaskCredit(new anchor.BN(amount))
+			.withdrawTaskCredit(new BN(amount * PayroundClient.MEGALAMPORT))
 			.accounts({
 				authority: this.provider.publicKey,
-				clockworkProgram: CLOCKWORK_THREAD_PROGRAM_ID,
+				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
 				payroundAccount: this.pubkey,
-				payTo: this.provider.publicKey,
 				task: task.pubkey,
-				thread: task.thread
+				thread: task.thread,
+				userId: this.userId
 			})
 			.rpc();
 	}
 
-  async updateTaskAcount(task: PublicKey, amount: number) {
-    return await this.program.methods.updateTaskAmount(new anchor.BN(amount))
-    .accounts({
-      authority: this.provider.publicKey,
-      payroundAccount: this.pubkey,
-      systemProgram: SystemProgram.programId,
-      task: task
-    }).rpc()
-  }
-  
-  async updateTaskSchedule(task: PublicKey, schedule: string, skippable: boolean) {
-    const taskAccount = await this.fetchTaskAccount(task);
-    return await this.program.methods.updateTaskSchedule(schedule, skippable)
-    .accounts({
-      authority: this.provider.publicKey,
-      payroundAccount: this.pubkey,
-      accountAta: this.usdcAddress,
-      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      clockworkProgram: CLOCKWORK_THREAD_PROGRAM_ID,
-      payer: this.provider.publicKey,
-      recipientAta: this.usdcAddress,
-      rent: SYSVAR_RENT_PUBKEY,
-      task: taskAccount.pubkey,
-      thread:taskAccount.thread,
-      tokenProgram: TOKEN_PROGRAM_ID,
-      systemProgram: SystemProgram.programId,
-    }).rpc()
-  }
+	async updateTaskDetails(task: PublicKey, taskOptions: TaskOptions) {
+		const taskAccount = await this.fetchTaskAccount(task);
+		return await this.program.methods
+			.updateTaskDetails(taskOptions)
+			.accounts({
+				authority: this.provider.publicKey,
+				payroundAccount: this.pubkey,
+				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,
+				task: taskAccount.pubkey,
+				thread: taskAccount.thread,
+				systemProgram: SystemProgram.programId,
+				userId: this.userId
+			})
+			.rpc();
+	}
 
-  // todo: close account
+	// todo: close account
 
 	get usdcAddress() {
 		return this.getUsdcAddressFor(this.pubkey);
@@ -323,11 +387,34 @@ export class PayroundClient {
 		return this._pda(this.userId)[1];
 	}
 
+	async getThreadKey(taskkey: string) {
+		const taskPublicKey = new PublicKey(taskkey);
+		const task = await this.fetchTaskAccount(taskPublicKey);
+		return task.thread.toBase58();
+	}
+
 	private _pda(userId: PublicKey) {
 		return findProgramAddressSync(
 			[userId.toBuffer(), Buffer.from(PayroundClient.PAYROUND_SEED)],
 			this.program.programId
 		);
+	}
+
+	static getUsdcAddress(mint: PublicKey, owner: PublicKey, allowPda?: boolean) {
+		return getAssociatedTokenAddressSync(mint, owner, allowPda);
+	}
+
+	async getPubkeyBalance() {
+		return this.connection.getBalance(this.pubkey);
+	}
+
+	async getUsdcAccount(address: PublicKey) {
+		return await getAccount(this.connection, address);
+	}
+
+	async getUsdcBalance(address: PublicKey) {
+		const account = await this.getUsdcAccount(address);
+		return Number(account.amount) / 10 ** 6;
 	}
 
 	getUsdcAddressFor(owner: PublicKey) {
@@ -348,5 +435,52 @@ export class PayroundClient {
 
 	async fetchTaskListAccount(key: PublicKey) {
 		return await this.program.account.tasklist.fetch(key);
+	}
+
+	async formatTxData(limit?: number) {
+		return await this.formatTxDataFor(this.usdcAddress, limit);
+	}
+
+	async formatTxDataFor(address: PublicKey, limit?: number) {
+		const txData = await getTransactionsFilterByMint(
+			address,
+			this.connection,
+			PayroundClient.MOCK_USDC_MINT,
+			{ limit }
+		);
+		console.log('txData:', txData);
+
+		return txData
+			.map((tx) => {
+				const preBal =
+					tx.parsedTx!.meta!.preTokenBalances!.filter((i) => i.owner == this.pubkey.toBase58())[0]
+						.uiTokenAmount.uiAmount || 0;
+
+				const postBal =
+					tx.parsedTx!.meta!.postTokenBalances!.filter((i) => i.owner == this.pubkey.toBase58())[0]
+						.uiTokenAmount.uiAmount || 0;
+
+				const out = preBal > postBal;
+
+				const token = tx.parsedTx!.meta!.postTokenBalances!.filter(
+					(i) => i.owner !== this.pubkey.toBase58()
+				);
+
+				const address = token.length == 0 ? '-' : token[0].owner;
+
+				const amount = Math.abs(preBal - postBal);
+
+				return {
+					sig: tx.sigInfo.signature,
+					timeStamp: tx.sigInfo.blockTime! * 1000,
+					mint: tx.parsedTx!.meta!.preTokenBalances![0].mint,
+					out,
+					preBal,
+					postBal,
+					amount,
+					address
+				};
+			})
+			.filter((i) => i.postBal !== i.preBal);
 	}
 }
