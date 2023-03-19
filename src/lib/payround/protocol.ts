@@ -30,7 +30,7 @@ export class PayroundClient {
 	static MOCK_USDC_MINT = new PublicKey('48JBvpStoDYJmQBFuENcCm6dBomPC2z9r4SfJJa9ui9H');
 	static CLOCKWORK_THREAD_SEED = 'thread';
 
-	static MEGALAMPORT = 1000000;
+	static MSOL = LAMPORTS_PER_SOL/1000;
 	static ACCOUNT_RENT = 9159360;
 
 	static CLOCKWORK_THREAD_PROGRAM_ID = new PublicKey(
@@ -332,7 +332,7 @@ export class PayroundClient {
 	async creditTaskTx(task: PublicKey, amount: number): Promise<string> {
 		const taskAccount = await this.fetchTaskAccount(task);
 		return await this.program.methods
-			.creditTask(new BN(amount * PayroundClient.MEGALAMPORT))
+			.creditTask(new BN(amount * PayroundClient.MSOL))
 			.accounts({
 				authority: this.provider.publicKey,
 				payroundAccount: this.pubkey,
@@ -347,7 +347,7 @@ export class PayroundClient {
 	async withdrawTaskCreditTx(taskKey: PublicKey, amount: number) {
 		const task = await this.fetchTaskAccount(taskKey);
 		return await this.program.methods
-			.withdrawTaskCredit(new BN(amount * PayroundClient.MEGALAMPORT))
+			.withdrawTaskCredit(new BN(amount * PayroundClient.MSOL))
 			.accounts({
 				authority: this.provider.publicKey,
 				clockworkProgram: PayroundClient.CLOCKWORK_THREAD_PROGRAM_ID,

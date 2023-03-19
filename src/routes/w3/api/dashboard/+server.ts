@@ -27,13 +27,14 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		.map((i) => {
 			let nextRunMs: number;
 			if (i.cron) {
-				nextRunMs = parser.parseExpression(i.schedule).next().toDate().getTime();
+				// let next = parser.parseExpression(i.schedule, {utc: true}).next().getUTCDate();
+				nextRunMs = parser.parseExpression(i.schedule, { utc: true }).next().toDate().getTime();
 			} else {
 				nextRunMs = Number(i.schedule) * 1000;
 			}
 			return { nextRunMs, ...i };
 		})
-		.filter((i) => i.nextRunMs > Date.now())
+		.filter((i) => i.nextRunMs)
 		.sort((a, b) => a.nextRunMs - b.nextRunMs)
 		.slice(0, 10);
 		

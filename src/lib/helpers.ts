@@ -74,7 +74,7 @@ export const formatEpoch = (epochMs: number | string) =>{
 	const formatHour = hour%12 == 0 ? '12' : formatTime(hour)
 	const formatMin = formatTime(new Date(epochMs).getMinutes())
 	const formatSec = formatTime(new Date(epochMs).getSeconds())
-	return `${new Date(Number(epochMs)).toDateString()}, ${formatHour}:${formatMin}:${formatSec} ${period} UTC`;
+	return `${new Date(Number(epochMs)).toDateString()}, ${formatHour}:${formatMin}:${formatSec} ${period}`;
 }
 
 const formatTime = (number: number) => number < 10 ? `0${number}` : `${number}`;

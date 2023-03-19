@@ -6,12 +6,6 @@ import { get } from 'svelte/store';
 
 export const load = (async ({ fetch, parent }) => {
 
-	// const req = await fetch ("/w3/api/dashboard", {
-	// 	method: "POST"
-	// })
-
-	await parent()
-
 	async function getUpcomingTasks() {
 		if (!get(walletStore).publicKey) return;
 		if (!get(payroundClientStore)) return;
@@ -39,6 +33,8 @@ export const load = (async ({ fetch, parent }) => {
 		console.log(txs)
 		return txs
 	}
+
+	await parent();
 
 	return {
 		upcomingTasks: getUpcomingTasks(),

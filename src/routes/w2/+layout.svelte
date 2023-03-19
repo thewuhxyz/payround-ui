@@ -5,7 +5,7 @@
 
 	export let data: LayoutData;
 
-	$: balance = data.uiBalance!.toString();
+	$: balance = data.uiBalance!;
 	$: nickname=data.nickname!
 	$: data.credits;
 	$: data.userAccountKey;
@@ -16,8 +16,8 @@
 	show={true}
 	route={"w2"}
 	address={data.userAccountKey}
-	balance={balance}
-	credit={data.credits}
+	balance={balance.toFixed(2)}
+	credit={data.credits.toFixed(2)}
 	{email}
 	name={nickname}
 >

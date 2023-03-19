@@ -19,38 +19,38 @@
 	$: accountkey = connected && $payroundClientStore.pubkey.toBase58();
 	$: publickey = connected && $payroundClientStore.userId.toBase58();
 
-	let message: any;
+	let message: Promise<any>;
+		let msg: any
 
-	$: message
+	$: message;
+	$: msg
 
 	let createAccount = async () => {
-
 		const req = await fetch('/w3/api/account', {
 			method: 'POST',
-			body: JSON.stringify({address: publickey})
+			body: JSON.stringify({ address: publickey })
 		});
-		console.log("here");
-		
-		const { account } = await req.json()
+		console.log('here');
 
-		console.log("account:", account)
-		
+		const { account } = await req.json();
+
+		console.log('account:', account);
+
 		if (account) {
-			await goto("/w3/dashboard")
+			await goto('/w3/dashboard');
 		}
-		
-		let rent = await $payroundClientStore.getPubkeyBalance()
-		console.log("rent");
-		
-		if (rent == 0 || null) {
 
+		let rent = await $payroundClientStore.getPubkeyBalance();
+		console.log('rent');
+
+		if (rent == 0 || null) {
 			const tx = await $payroundClientStore.createAccountTx('some account 1');
 			console.log('tx:', tx);
 			// rent =  await $payroundClientStore.getPubkeyBalance()
 		}
 		const response = {
 			name,
-			address: publickey,
+			address: publickey
 			// rent
 		};
 
@@ -59,15 +59,17 @@
 			body: JSON.stringify(response)
 		});
 
-		console.log("resp:", resp.json());
+		// console.log('resp:', resp.json());
 
-		message = resp.json()
+		let data = await resp.json();
+		msg = data
+
 	};
 
 	// $: createAccount = $payroundClientStore.createAccountTx("account 1")
 </script>
 
-{publickey}
+<!-- {publickey} -->
 <form class="form p-2 max-w-sm" on:submit|preventDefault={createAccount}>
 	<!-- <label for="name">
 		<input
@@ -82,4 +84,13 @@
 		>Launch your Account 😎</button
 	>
 </form>
- <div>Success: {message.success}</div>
+<div>
+	{#if msg}
+		<!-- {#await message}
+			waiting for message
+		{:then msg} -->
+			Success: {msg.success}
+			Message: {msg.message}
+		<!-- {/await} -->
+	{/if}
+</div>

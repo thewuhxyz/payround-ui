@@ -2,12 +2,13 @@ import { walletStore } from '@svelte-on-solana/wallet-adapter-core';
 import { payroundClientStore } from '$lib/stores/payroundClientStore';
 import type { LayoutLoad, PageLoad } from './$types';
 import { get } from 'svelte/store';
+import { goto } from '$app/navigation';
 
 console.log('/pdas PAGE.ts');
 
 export const ssr = false
 
-export const load = (async ({ fetch, params, setHeaders }) => {
+export const load = (async ({ fetch, params }) => {
 
 	// const SOLANA_ANCHOR_SVELTEKIT_SKELETON_STARTER_PROGRAM_ID = new anchor.web3.PublicKey(
 	//   '7j6ARQdmgrJwEqgJDHC82nvwQX26qcDF79osU6M7kmui'
@@ -38,8 +39,8 @@ export const load = (async ({ fetch, params, setHeaders }) => {
 	async function isAccountCreated() {
 		// console.log("here:");
 		
-		if (!get(walletStore).publicKey) return;
-		if (!get(payroundClientStore)) return;
+		if (!get(walletStore).publicKey) return null;
+		if (!get(payroundClientStore)) return null;
 
 		const userId = get(payroundClientStore).userId.toBase58()
 		const req = await fetch('/w3/api/account', {
@@ -52,14 +53,18 @@ export const load = (async ({ fetch, params, setHeaders }) => {
 
 		console.log("account:", account)
 		// console.log("req:", some)
-		return await account
+		return await account as boolean
 
 	}
 
+	// const created = await isAccountCreated()
+	// if (created == null) return null
+	// if (!created) throw goto("/w3/create")
+
 	return {
-		user: isAccountCreated(),
-    balance: getBalance(),
-		credit: getCredit()
+		user: await isAccountCreated(),
+    balance: await getBalance(),
+		credit: await getCredit()
 
 	};
 }) satisfies LayoutLoad;

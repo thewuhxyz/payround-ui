@@ -8,7 +8,7 @@
 	export let email: string;
 	export let address: string;
 	export let balance: string;
-	export let credit: number;
+	export let credit: string;
 	export let show: boolean
 	export let route: string
 </script>

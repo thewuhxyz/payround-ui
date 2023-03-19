@@ -16,8 +16,6 @@
 	import { truncate } from '$lib/helpers';
 	import { PayroundClient } from '$lib/payround/protocol';
 
-	export const ssr = false
-
 	// export let data: LayoutData;
 
 	const localStorageKey = 'walletAdapter';
@@ -27,54 +25,56 @@
 
 	let wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
 
-	let balance: string
-	let address: string = ""
-	let pubkey: string = ""
-	let credit: number = 0
+	let balances: number = 0;
+	let address: string = '';
+	let pubkey: string = '';
+	let credits: number = 0;
 
 	$: autoConnect = browser && Boolean(getLocalStorage('autoconnect', true));
 
 	$: walletStore;
-	$: balance;
-	$: address
-	$: credit
-	$: pubkey
+	$: balances;
+	$: address;
+	$: credits;
+	$: pubkey;
 
 	$: ({ connected } = $walletStore);
 	$: ({ sendTransaction, signTransaction, signAllTransactions, signMessage, publicKey } =
 		$walletStore);
 
-		// Create some variables to react to Stores' state
+	// Create some variables to react to Stores' state
 	$: hasWorkspaceProgramReady =
-		$payroundClientStore &&
-		$payroundClientStore.userId == $walletStore.publicKey
+		$payroundClientStore && $payroundClientStore.userId == $walletStore.publicKey;
 
 	$: hasWalletReadyForFetch =
 		$walletStore.connected && !$walletStore.connecting && !$walletStore.disconnecting;
 
-	
-
 	$: if (hasWalletReadyForFetch && hasWorkspaceProgramReady) {
 		console.log('Wallet and Workspace ready!');
 
-	
 		// balanceStore.getUserUSDCBalance($walletStore.publicKey as PublicKey, $payroundClientStore.connection);
-		balancesStore.getUserBalances($payroundClientStore.usdcAddress as PublicKey, $payroundClientStore.pubkey, $payroundClientStore.connection);
-		balance = $balancesStore.balance.toLocaleString()
-		credit = ($balancesStore.credit - PayroundClient.ACCOUNT_RENT)/PayroundClient.MEGALAMPORT
+		balancesStore.getUserBalances(
+			$payroundClientStore.usdcAddress as PublicKey,
+			$payroundClientStore.pubkey,
+			$payroundClientStore.connection
+		);
 
-		address = $payroundClientStore.pubkey.toBase58()
-		pubkey = $payroundClientStore.userId.toBase58()
-
-
+		address = $payroundClientStore.pubkey.toBase58();
+		pubkey = $payroundClientStore.userId.toBase58();
+		// balances =  $balancesStore.balance;
+		// credits =  $balancesStore.credit;
 	}
-	
+
+	$: balance =  $balancesStore.balance;
+	$: credit =  $balancesStore.credit;
+
+	// balance = $balancesStore.balance.toLocaleString()
+	// credit = ($balancesStore.credit - PayroundClient.ACCOUNT_RENT)/PayroundClient.MSOL
 	// $: balance = connected && data.balance
 	// $: account = connected && data.user
 	// $: credit = connected && data.credit
 
 	// $: console.log("credit:", credit)
-
 </script>
 
 <WalletProvider {localStorageKey} {wallets} {autoConnect} />
@@ -82,11 +82,11 @@
 <AppLayout
 	route={'w3'}
 	show={true}
-	address={address || ""} 
-	balance={balance || "0"}
-	credit={credit || 0}
-	email={truncate(pubkey, 10) || ""}
-	name={""}
+	address={address || ''}
+	balance={balance.toFixed(2) || "0"}
+	credit={credit.toFixed(2) || '0'}
+	email={truncate(pubkey, 10) || ''}
+	name={''}
 >
 	<slot />
-</AppLayout> 
+</AppLayout>

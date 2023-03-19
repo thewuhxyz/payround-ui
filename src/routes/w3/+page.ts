@@ -40,7 +40,7 @@ export const load = (async ({ fetch, params, setHeaders }) => {
 	}
 
 	return {
-		isAccountCreated: isAccountCreated()
+		isAccountCreated: await isAccountCreated()
 	};
 }) satisfies PageLoad;
 
