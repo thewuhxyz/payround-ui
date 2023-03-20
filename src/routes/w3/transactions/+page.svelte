@@ -5,7 +5,7 @@
 
 	export let data: PageData;
 
-	const transactions = data.data;
+	const transactions = data.txFormatedData;
 
 	$: transactions;
 </script>
