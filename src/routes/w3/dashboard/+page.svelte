@@ -74,7 +74,7 @@
 					</thead>
 					<tbody>
 						{#each tasks as row, i}
-							<tr id={row.task_key} on:click={() => goto(`/w2/task/${row.task_key}`)}>
+							<tr id={row.task_key} on:click={() => goto(`/w3/task/${row.task_key}`)}>
 								<td>{i + 1}</td>
 								<td>{row.name !== null ? truncate(row.name) : null}</td>
 								<td>{truncate(row.recipient)}</td>
