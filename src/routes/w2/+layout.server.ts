@@ -16,11 +16,11 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
 	if (!accountCreated) {
 		return {
-			balance: '',
+			balance: 0,
 			userAccountKey: '',
 			// balance: 0,
 			credits: 0,
-			uiBalance: '',
+			uiBalance: 0,
 			email: '',
 			nickname: ''
 		};
@@ -41,8 +41,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
 	const balance = await payroundAdmin.connection.getTokenAccountBalance(payroundAdmin.usdcAddress);
 	const credits =
-		((await payroundAdmin.getPubkeyBalance()) - PayroundClient.ACCOUNT_RENT) /
-		PayroundClient.MEGALAMPORT; // MegaLamports
+		((await payroundAdmin.getPubkeyBalance()) - PayroundClient.ACCOUNT_RENT) / PayroundClient.MSOL; // MegaLamports
 	const uiBalance = balance.value.uiAmount;
 	return {
 		session: locals.getSession(),

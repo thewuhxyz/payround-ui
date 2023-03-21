@@ -1,6 +1,6 @@
 <script lang="ts">
-	// import '../theme.postcss';
-	import '@skeletonlabs/skeleton/themes/theme-hamlindigo.css';
+	import '../theme.postcss';
+	// import '@skeletonlabs/skeleton/themes/theme-hamlindigo.css';
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
 	import { Modal, storePopup, Toast } from '@skeletonlabs/skeleton';

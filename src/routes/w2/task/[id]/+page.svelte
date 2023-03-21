@@ -82,7 +82,7 @@
 					<td>{task.task_group}</td>
 				</tr>
 				<tr>
-					<th>Task Credit:</th>
+					<th>mSOL:</th>
 					<td>{task.threadBalance}</td>
 				</tr>
 			</tbody>

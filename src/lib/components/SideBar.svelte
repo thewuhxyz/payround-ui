@@ -15,7 +15,7 @@
 		{ name: 'Send', link: `/${route}/send`, disable: false },
 		{ name: 'Tasks', link: `/${route}/task`, disable: false },
 		{ name: 'Groups', link: `/${route}/group`, disable: false },
-		{ name: 'Address Book', link: `/${route}/addresses`, disable: false },
+		{ name: 'Address Book', link: `/${route}/addresses`, disable: true },
 		{ name: 'Invoice', link: `/${route}/invoice`, disable: true },
 		{ name: 'USD', link: `/${route}/usd`, disable: false },
 		{ name: 'Transactions', link: `/${route}/transactions`, disable: false },

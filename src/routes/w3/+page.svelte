@@ -45,8 +45,8 @@
 
 		console.log('account:', account);
 		// console.log("req:", some)
-		if (account) await goto('/w3/dashboard');
-		else await goto('/w3/create');
+		if (account) goto('/w3/dashboard');
+		else goto('/w3/create');
 		// else 
 	}
 	// $: createAccount = $payroundClientStore.createAccountTx("account 1")

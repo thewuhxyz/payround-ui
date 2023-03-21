@@ -18,7 +18,7 @@
 </script>
 
 <form
-	class="border-2 rounded-3xl border-solid text-tertiary-400 border-primary-500 max-w-xl p-4 mx-auto my-24"
+	class="border-2 rounded-3xl border-solid  border-primary-500 max-w-xl p-4 mx-auto my-24"
 	action="?/send"
 	method="post"
 >

@@ -17,8 +17,6 @@
 
 	// export const prerender = false
 
-	
-
 	// const login = async () => {
 	// 	if (wallet!) {
 	// 		const message = new SigninMessage({
@@ -48,8 +46,6 @@
 	// 		// console.log('resp', resp.json());
 	// 	}
 	// };
-
-	
 </script>
 
 <LightSwitch />
@@ -70,13 +66,15 @@
 		>
 			<form class="form" action="?/login" method="POST">
 				<div class="text-center text-3xl mt-5 py-3">Sign in with email 👔</div>
-				<input
-					id="email"
-					class="my-2 px-6 input bg-white text-secondary-500 placeholder:text-secondary-200"
-					placeholder="someone@example.com"
-					name="email"
-					type="email"
-				/>
+				<label for="email">
+					<input
+						id="email"
+						class="my-2 px-6 input bg-white text-secondary-500 placeholder:text-secondary-200"
+						placeholder="someone@example.com"
+						name="email"
+						type="email"
+					/>
+				</label>
 				<!-- <input
 					class=" my-2 px-6 input bg-white text-secondary-500 placeholder:text-secondary-200"
 					placeholder="password"
@@ -91,13 +89,12 @@
 			<div class="my-2 border-t-2 border-dashed" />
 			<div class="mb-8">
 				<div class="text-center text-3xl py-3">Welcome Degen 🥷</div>
-		
-					<button
-						on:click={() => goto("/w3")}
-						class="bg-secondary-500 w-full rounded-3xl p-4 my-2 btn"
-						type="submit">LAUNCH APP</button
-					>
-				
+
+				<button
+					on:click={() => goto('/w3')}
+					class="bg-secondary-500 w-full rounded-3xl p-4 my-2 btn"
+					type="submit">LAUNCH APP</button
+				>
 			</div>
 		</div>
 	</div>
